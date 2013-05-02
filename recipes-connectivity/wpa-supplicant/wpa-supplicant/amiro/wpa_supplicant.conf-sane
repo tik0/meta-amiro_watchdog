@@ -1,0 +1,14 @@
+ctrl_interface=/var/run/wpa_supplicant
+ap_scan=1
+fast_reauth=1
+
+network={
+	ssid="openrobotix"
+	scan_ssid=1
+	proto=RSN
+	key_mgmt=WPA-PSK
+	pairwise=CCMP TKIP
+	group=CCMP TKIP
+	#psk="kQLceReB19LX4h8M1xHl8YnHRtBZbjxMAIynjcxkkIHnzOA1MQlTyZkQTuy4dvQ"
+	psk=e5fa69b09bf58011ff0715e1498d123fd4149533931641ab48ef8eec9c8be57b
+}
