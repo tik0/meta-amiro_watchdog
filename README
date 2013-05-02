@@ -1,0 +1,34 @@
+meta-amiro
+==========
+
+This layer provides support for building the AMiRo mini robot BSP.
+
+Copyright(C) 2012-2013
+Stefan Herbrechtsmeier <sherbrec@cit-ec.uni-bielefeld.de>
+
+The development of this software was supported by the Excellence Cluster
+EXC 277 Cognitive Interaction Technology. The Excellence Cluster EXC 277
+is a grant of the Deutsche Forschungsgemeinschaft (DFG) in the context of
+the German Excellence Initiative.
+
+
+Dependencies
+------------
+
+This layer depends on:
+
+  URI: git://git.yoctoproject.org/poky
+  branch: master
+
+  URI: git://git.openembedded.org/meta-openembedded
+  layers: meta-oe
+  branch: master
+
+  URI: http://opensource.cit-ec.de/git/meta-openrobotix.git
+  branch: master
+
+
+Information
+-----------
+
+http://opensource.cit-ec.de/projects/meta-amiro
