@@ -1,0 +1,12 @@
+define KMACHINE amiro
+define KTYPE standard
+define KARCH arm
+
+include ktypes/standard
+
+kconf hardware amiro.cfg
+
+include cfg/fs/devtmpfs.scc
+include cfg/usb-mass-storage.scc
+include cfg/fs/vfat.scc
+include cfg/fs/ext4.scc
