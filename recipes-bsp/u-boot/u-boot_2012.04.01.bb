@@ -18,9 +18,11 @@ SRCREV = "415d386877df49eb051b85ef74fa59a16dc17c7d"
 PV = "v2012.04.01+git${SRCPV}"
 PR = "r0"
 
-SRC_URI = "git://git.denx.de/u-boot.git;branch=master;protocol=git \
-           file://0001-omap3_add_amiro_board_support.patch \
-          "
+SRC_URI = "git://git.denx.de/u-boot.git;branch=master;protocol=git"
+
+SRC_URI_append_amiro = " \
+    file://0001-omap3_add_amiro_board_support.patch \
+    "
 
 S = "${WORKDIR}/git"
 
