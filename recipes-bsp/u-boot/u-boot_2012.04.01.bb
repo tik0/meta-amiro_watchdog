@@ -19,8 +19,8 @@ PV = "v2012.04.01+git${SRCPV}"
 PR = "r0"
 
 SRC_URI = "git://git.denx.de/u-boot.git;branch=master;protocol=git \
-           file://omap3_add_amiro_board_support.patch \
-"
+           file://0001-omap3_add_amiro_board_support.patch \
+          "
 
 S = "${WORKDIR}/git"
 
