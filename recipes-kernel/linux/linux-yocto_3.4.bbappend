@@ -1,7 +1,5 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
-PRINC := "${@int(PRINC) + 2}"
-
 KMACHINE_amiro = "amiro"
 
 SRC_URI_append_amiro = " \
