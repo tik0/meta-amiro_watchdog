@@ -1,6 +1,6 @@
 DESCRIPTION = "The calibrator and other useful utilities for TI wireless \
 solution based on wl12xx driver"
-LICENSE = "TI-BSD"
+LICENSE = "BSD-3-Clause"
 LIC_FILES_CHKSUM = "file://COPYING;md5=4725015cb0be7be389cf06deeae3683d"
 
 DEPENDS = "libnl"
