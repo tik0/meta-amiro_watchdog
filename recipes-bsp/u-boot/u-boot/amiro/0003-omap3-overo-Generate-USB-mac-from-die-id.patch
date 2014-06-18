@@ -1,0 +1,27 @@
+From 11a1d3253000d61df14b33a7878e432f828ca0ea Mon Sep 17 00:00:00 2001
+From: Stefan Herbrechtsmeier <stefan@herbrechtsmeier.net>
+Date: Wed, 21 May 2014 15:27:02 +0200
+Subject: [PATCH 3/8] omap3: overo: Generate USB mac from die id
+
+Signed-off-by: Stefan Herbrechtsmeier <stefan@herbrechtsmeier.net>
+---
+ board/overo/overo.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/board/overo/overo.c b/board/overo/overo.c
+index 20b604a..cf227a3 100644
+--- a/board/overo/overo.c
++++ b/board/overo/overo.c
+@@ -365,6 +365,9 @@ int misc_init_r(void)
+ 
+ 	dieid_num_r();
+ 
++	get_dieid(id);
++	usb_fake_mac_from_die_id(id);
++
+ 	return 0;
+ }
+ 
+-- 
+2.0.0
+

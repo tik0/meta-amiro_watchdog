@@ -1,0 +1,45 @@
+From a3714a740a10dda80014c425b1a7f8c317e54c2c Mon Sep 17 00:00:00 2001
+From: Simon Glass <sjg@chromium.org>
+Date: Fri, 30 May 2014 14:41:50 -0600
+Subject: [PATCH 8/8] Fix hush to give the correct return code for a simple
+ command
+
+When a simple command like 'false' is provided, hush should return the
+result of that command. However, hush only does this if the
+FLAG_EXIT_FROM_LOOP flag is provided. Without this flag, hush will
+happily execute the empty string command immediate after 'false' and
+then return a success code.
+
+This behaviour does not seem very useful, and requiring the flag also
+seems wrong, since it means that hush will execute only the first command
+in a sequence.
+
+Add a check for empty string and fall out of the loop in that case. That
+at least fixes the simple command case. This is a change in behaviour but
+it is unlikely that the old behaviour would be considered correct in any
+case.
+
+Reported-by: Stefan Herbrechtsmeier <stefan@herbrechtsmeier.net>
+Signed-off-by: Simon Glass <sjg@chromium.org>
+---
+ common/cli_hush.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/common/cli_hush.c b/common/cli_hush.c
+index 0f069b0..e0c436f 100644
+--- a/common/cli_hush.c
++++ b/common/cli_hush.c
+@@ -3215,7 +3215,9 @@ static int parse_stream_outer(struct in_str *inp, int flag)
+ 			free_pipe_list(ctx.list_head,0);
+ 		}
+ 		b_free(&temp);
+-	} while (rcode != -1 && !(flag & FLAG_EXIT_FROM_LOOP));   /* loop on syntax errors, return on EOF */
++	/* loop on syntax errors, return on EOF */
++	} while (rcode != -1 && !(flag & FLAG_EXIT_FROM_LOOP) &&
++		(inp->peek != static_peek || b_peek(inp)));
+ #ifndef __U_BOOT__
+ 	return 0;
+ #else
+-- 
+2.0.0
+
