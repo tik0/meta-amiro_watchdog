@@ -14,8 +14,8 @@ Signed-off-by: Michael Jones <michael.jones@matrix-vision.de>
 
 diff --git a/drivers/media/video/omap3isp/ispvideo.c b/drivers/media/video/omap3isp/ispvideo.c
 index d1d2c14..955211b 100644
---- a/drivers/media/video/omap3isp/ispvideo.c
-+++ b/drivers/media/video/omap3isp/ispvideo.c
+--- a/drivers/media/platform/omap3isp/ispvideo.c
++++ b/drivers/media/platform/omap3isp/ispvideo.c
 @@ -1244,6 +1244,7 @@ static int isp_video_open(struct file *file)
  {
  	struct isp_video *video = video_drvdata(file);

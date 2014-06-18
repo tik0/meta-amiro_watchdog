@@ -1,0 +1,223 @@
+From c4c54d66d0063632960061040e54525e0c2641c9 Mon Sep 17 00:00:00 2001
+From: Stefan Herbrechtsmeier <stefan@herbrechtsmeier.net>
+Date: Fri, 13 Jun 2014 19:25:37 +0200
+Subject: [PATCH 22/25] ARM: dts: omap3-overo: Move LIS33 accelerometer to its
+ own dtsi file.
+
+Move the LIS33 accelerometer to its own dtsi file as it isn't available
+on all expansion boards.
+
+Signed-off-by: Stefan Herbrechtsmeier <stefan@herbrechtsmeier.net>
+---
+ arch/arm/boot/dts/omap3-overo-alto35-common.dtsi   |  1 +
+ .../boot/dts/omap3-overo-chestnut43-common.dtsi    |  4 --
+ .../boot/dts/omap3-overo-common-peripherals.dtsi   | 44 ----------------
+ arch/arm/boot/dts/omap3-overo-gallop43-common.dtsi |  1 +
+ arch/arm/boot/dts/omap3-overo-lis33.dtsi           | 58 ++++++++++++++++++++++
+ arch/arm/boot/dts/omap3-overo-palo43-common.dtsi   |  1 +
+ arch/arm/boot/dts/omap3-overo-summit-common.dtsi   |  4 --
+ arch/arm/boot/dts/omap3-overo-tobi-common.dtsi     |  4 --
+ 8 files changed, 61 insertions(+), 56 deletions(-)
+ create mode 100644 arch/arm/boot/dts/omap3-overo-lis33.dtsi
+
+diff --git a/arch/arm/boot/dts/omap3-overo-alto35-common.dtsi b/arch/arm/boot/dts/omap3-overo-alto35-common.dtsi
+index 19d6486..eb4a7a8 100644
+--- a/arch/arm/boot/dts/omap3-overo-alto35-common.dtsi
++++ b/arch/arm/boot/dts/omap3-overo-alto35-common.dtsi
+@@ -11,6 +11,7 @@
+  */
+ 
+ #include "omap3-overo-common-peripherals.dtsi"
++#include "omap3-overo-lis33.dtsi"
+ 
+ #include <dt-bindings/input/input.h>
+ 
+diff --git a/arch/arm/boot/dts/omap3-overo-chestnut43-common.dtsi b/arch/arm/boot/dts/omap3-overo-chestnut43-common.dtsi
+index 19de6ff..20250f4 100644
+--- a/arch/arm/boot/dts/omap3-overo-chestnut43-common.dtsi
++++ b/arch/arm/boot/dts/omap3-overo-chestnut43-common.dtsi
+@@ -63,7 +63,3 @@
+ 	};
+ };
+ 
+-&lis33de {
+-	status = "disabled";
+-};
+-
+diff --git a/arch/arm/boot/dts/omap3-overo-common-peripherals.dtsi b/arch/arm/boot/dts/omap3-overo-common-peripherals.dtsi
+index 5831bcc..bca81ae 100644
+--- a/arch/arm/boot/dts/omap3-overo-common-peripherals.dtsi
++++ b/arch/arm/boot/dts/omap3-overo-common-peripherals.dtsi
+@@ -10,22 +10,6 @@
+  * Peripherals common to all Gumstix Overo boards (Tobi, Summit, Palo43,...)
+  */
+ 
+-/ {
+-	lis33_3v3: lis33-3v3-reg {
+-		compatible = "regulator-fixed";
+-		regulator-name = "lis33-3v3-reg";
+-		regulator-min-microvolt = <3300000>;
+-		regulator-max-microvolt = <3300000>;
+-	};
+-
+-	lis33_1v8: lis33-1v8-reg {
+-		compatible = "regulator-fixed";
+-		regulator-name = "lis33-1v8-reg";
+-		regulator-min-microvolt = <1800000>;
+-		regulator-max-microvolt = <1800000>;
+-	};
+-};
+-
+ &omap3_pmx_core {
+ 	i2c3_pins: pinmux_i2c3_pins {
+ 		pinctrl-single,pins = <
+@@ -53,34 +37,6 @@
+ 		reg = <0x51>;
+ 		pagesize = <8>;
+ 	};
+-
+-	lis33de: lis33de@1d {
+-		compatible = "st,lis33de", "st,lis3lv02d";
+-		reg = <0x1d>;
+-		Vdd-supply = <&lis33_1v8>;
+-		Vdd_IO-supply = <&lis33_3v3>;
+-
+-		st,click-single-x;
+-		st,click-single-y;
+-		st,click-single-z;
+-		st,click-thresh-x = <10>;
+-		st,click-thresh-y = <10>;
+-		st,click-thresh-z = <10>;
+-		st,irq1-click;
+-		st,irq2-click;
+-		st,wakeup-x-lo;
+-		st,wakeup-x-hi;
+-		st,wakeup-y-lo;
+-		st,wakeup-y-hi;
+-		st,wakeup-z-lo;
+-		st,wakeup-z-hi;
+-		st,min-limit-x = <120>;
+-		st,min-limit-y = <120>;
+-		st,min-limit-z = <140>;
+-		st,max-limit-x = <550>;
+-		st,max-limit-y = <550>;
+-		st,max-limit-z = <750>;
+-	};
+ };
+ 
+ &mmc3 {
+diff --git a/arch/arm/boot/dts/omap3-overo-gallop43-common.dtsi b/arch/arm/boot/dts/omap3-overo-gallop43-common.dtsi
+index 5e848c2..fd3f5d2 100644
+--- a/arch/arm/boot/dts/omap3-overo-gallop43-common.dtsi
++++ b/arch/arm/boot/dts/omap3-overo-gallop43-common.dtsi
+@@ -11,6 +11,7 @@
+  */
+ 
+ #include "omap3-overo-common-peripherals.dtsi"
++#include "omap3-overo-lis33.dtsi"
+ 
+ #include <dt-bindings/input/input.h>
+ 
+diff --git a/arch/arm/boot/dts/omap3-overo-lis33.dtsi b/arch/arm/boot/dts/omap3-overo-lis33.dtsi
+new file mode 100644
+index 0000000..7d193a5
+--- /dev/null
++++ b/arch/arm/boot/dts/omap3-overo-lis33.dtsi
+@@ -0,0 +1,58 @@
++/*
++ * Copyright (C) 2014 Florian Vaussard, EPFL Mobots group
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++/*
++ * LIS33 accelerometer on Gumstix Overo boards 
++ */
++
++/ {
++	lis33_3v3: lis33-3v3-reg {
++		compatible = "regulator-fixed";
++		regulator-name = "lis33-3v3-reg";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++	};
++
++	lis33_1v8: lis33-1v8-reg {
++		compatible = "regulator-fixed";
++		regulator-name = "lis33-1v8-reg";
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <1800000>;
++	};
++};
++
++&i2c3 {
++	lis33de: lis33de@1d {
++		compatible = "st,lis33de", "st,lis3lv02d";
++		reg = <0x1d>;
++		Vdd-supply = <&lis33_1v8>;
++		Vdd_IO-supply = <&lis33_3v3>;
++
++		st,click-single-x;
++		st,click-single-y;
++		st,click-single-z;
++		st,click-thresh-x = <10>;
++		st,click-thresh-y = <10>;
++		st,click-thresh-z = <10>;
++		st,irq1-click;
++		st,irq2-click;
++		st,wakeup-x-lo;
++		st,wakeup-x-hi;
++		st,wakeup-y-lo;
++		st,wakeup-y-hi;
++		st,wakeup-z-lo;
++		st,wakeup-z-hi;
++		st,min-limit-x = <120>;
++		st,min-limit-y = <120>;
++		st,min-limit-z = <140>;
++		st,max-limit-x = <550>;
++		st,max-limit-y = <550>;
++		st,max-limit-z = <750>;
++	};
++};
++
+diff --git a/arch/arm/boot/dts/omap3-overo-palo43-common.dtsi b/arch/arm/boot/dts/omap3-overo-palo43-common.dtsi
+index abea232..fc238f6 100644
+--- a/arch/arm/boot/dts/omap3-overo-palo43-common.dtsi
++++ b/arch/arm/boot/dts/omap3-overo-palo43-common.dtsi
+@@ -11,6 +11,7 @@
+  */
+ 
+ #include "omap3-overo-common-peripherals.dtsi"
++#include "omap3-overo-lis33.dtsi"
+ 
+ #include <dt-bindings/input/input.h>
+ 
+diff --git a/arch/arm/boot/dts/omap3-overo-summit-common.dtsi b/arch/arm/boot/dts/omap3-overo-summit-common.dtsi
+index 999d1cd..0681d91 100644
+--- a/arch/arm/boot/dts/omap3-overo-summit-common.dtsi
++++ b/arch/arm/boot/dts/omap3-overo-summit-common.dtsi
+@@ -25,7 +25,3 @@
+ 	};
+ };
+ 
+-&lis33de {
+-	status = "disabled";
+-};
+-
+diff --git a/arch/arm/boot/dts/omap3-overo-tobi-common.dtsi b/arch/arm/boot/dts/omap3-overo-tobi-common.dtsi
+index 13df50b..060eb77 100644
+--- a/arch/arm/boot/dts/omap3-overo-tobi-common.dtsi
++++ b/arch/arm/boot/dts/omap3-overo-tobi-common.dtsi
+@@ -35,7 +35,3 @@
+ 	};
+ };
+ 
+-&lis33de {
+-	status = "disabled";
+-};
+-
+-- 
+2.0.0
+

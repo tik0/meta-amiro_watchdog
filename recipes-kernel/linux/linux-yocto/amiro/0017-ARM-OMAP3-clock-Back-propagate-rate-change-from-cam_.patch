@@ -1,0 +1,39 @@
+From 9e451b7357be88a3318c21761b753412d17f5832 Mon Sep 17 00:00:00 2001
+From: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Date: Mon, 21 Apr 2014 15:06:23 +0200
+Subject: [PATCH 17/25] ARM: OMAP3: clock: Back-propagate rate change from
+ cam_mclk to dpll4_m5 on all OMAP3 platforms
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Commit 7b2e1277598e4187c9be3e61fd9b0f0423f97986 ("ARM: OMAP3: clock:
+Back-propagate rate change from cam_mclk to dpll4_m5") enabled clock
+rate back-propagation from cam_mclk do dpll4_m5 on OMAP3630 only.
+Perform back-propagation on other OMAP3 platforms as well.
+
+Reported-by: Jean-Philippe François <jp.francois@cynove.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: <stable@kernel.org>
+Signed-off-by: Paul Walmsley <paul@pwsan.com>
+---
+ arch/arm/mach-omap2/cclock3xxx_data.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/mach-omap2/cclock3xxx_data.c b/arch/arm/mach-omap2/cclock3xxx_data.c
+index 11ed915..793039a 100644
+--- a/arch/arm/mach-omap2/cclock3xxx_data.c
++++ b/arch/arm/mach-omap2/cclock3xxx_data.c
+@@ -456,7 +456,8 @@ static struct clk_hw_omap dpll4_m5x2_ck_hw = {
+ 	.clkdm_name	= "dpll4_clkdm",
+ };
+ 
+-DEFINE_STRUCT_CLK(dpll4_m5x2_ck, dpll4_m5x2_ck_parent_names, dpll4_m5x2_ck_ops);
++DEFINE_STRUCT_CLK_FLAGS(dpll4_m5x2_ck, dpll4_m5x2_ck_parent_names,
++			dpll4_m5x2_ck_ops, CLK_SET_RATE_PARENT);
+ 
+ static struct clk dpll4_m5x2_ck_3630 = {
+ 	.name		= "dpll4_m5x2_ck",
+-- 
+2.0.0
+

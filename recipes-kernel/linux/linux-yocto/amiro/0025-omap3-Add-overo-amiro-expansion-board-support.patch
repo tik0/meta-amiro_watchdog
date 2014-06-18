@@ -1,0 +1,536 @@
+From e00c8ce443ba3a1d1e4d8702b13c353851e67ee9 Mon Sep 17 00:00:00 2001
+From: Stefan Herbrechtsmeier <stefan@herbrechtsmeier.net>
+Date: Tue, 3 Jun 2014 17:15:20 +0200
+Subject: [PATCH 25/25] omap3: Add overo amiro expansion board support
+
+Signed-off-by: Stefan Herbrechtsmeier <stefan@herbrechtsmeier.net>
+---
+ arch/arm/boot/dts/Makefile              |   1 +
+ arch/arm/boot/dts/omap3-overo-amiro.dts | 322 ++++++++++++++++++++++++++++++++
+ arch/arm/mach-omap2/pdata-quirks.c      | 141 ++++++++++++++
+ 3 files changed, 464 insertions(+)
+ create mode 100644 arch/arm/boot/dts/omap3-overo-amiro.dts
+
+diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
+index 6565a7d..80d0432 100644
+--- a/arch/arm/boot/dts/Makefile
++++ b/arch/arm/boot/dts/Makefile
+@@ -210,6 +210,7 @@ dtb-$(CONFIG_ARCH_OMAP2PLUS) += omap2420-h4.dtb \
+ 	omap3-n9.dtb \
+ 	omap3-n950.dtb \
+ 	omap3-overo-alto35.dtb \
++	omap3-overo-amiro.dtb \
+ 	omap3-overo-storm-alto35.dtb \
+ 	omap3-overo-chestnut43.dtb \
+ 	omap3-overo-storm-chestnut43.dtb \
+diff --git a/arch/arm/boot/dts/omap3-overo-amiro.dts b/arch/arm/boot/dts/omap3-overo-amiro.dts
+new file mode 100644
+index 0000000..1fd9ddb
+--- /dev/null
++++ b/arch/arm/boot/dts/omap3-overo-amiro.dts
+@@ -0,0 +1,322 @@
++/*
++ * AMiRo expansion board
++ */
++
++/dts-v1/;
++
++#include "omap3-overo.dtsi"
++#include "omap3-overo-common-peripherals.dtsi"
++
++/ {
++	model = "TI OMAP3 Gumstix Overo on AMiRo Cognition";
++	compatible = "amiro,omap3-overo-amiro", "gumstix,omap3-overo", "ti,omap3430", "ti,omap3";
++
++	clocks {
++		/* external oscillator */
++		mcp2515_osc: oscillator-mcp2515 {
++			compatible = "fixed-clock";
++			#clock-cells = <0>;
++			clock-frequency  = <24000000>; /* 24 MHz */
++			clock-output-names = "osc24MHz";
++		};
++	};
++
++	leds {
++		compatible = "gpio-leds";
++		pinctrl-names = "default";
++		pinctrl-0 = <&led_pins>;
++
++		status_green {
++			label = "amiro:green:status";
++			gpios = <&gpio5 16 GPIO_ACTIVE_HIGH>; /* GPIO 144 */
++			linux,default-trigger = "heartbeat";
++		};
++	};
++
++	pwmleds {
++		compatible = "pwm-leds";
++
++		status_red {
++			label = "amiro:red:status";
++			pwms = <&twl_pwm 0 7812500>; /* TWL4030 GPIO 6 */
++			max-brightness = <127>;
++			default-brightness-level = <127>;
++		};
++
++		status_blue {
++			label = "amiro:blue:status";
++			pwms = <&twl_pwm 1 7812500>; /* TWL4030 GPIO 7 */
++			max-brightness = <127>;
++			linux,default-trigger = "mmc0";
++		};
++	};
++
++	/* Regulator to trigger the WLAN enable signal of the TiWi module */
++	tiwi_wlan_en: regulator-tiwi-wlan-enable {
++		pinctrl-names = "default";
++		pinctrl-0 = <&tiwi_wlan_en_pins>;
++		compatible = "regulator-fixed";
++		regulator-name = "regulator-tiwi-wlan-enable";
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <1800000>;
++		enable-gpio = <&gpio3 29 GPIO_ACTIVE_HIGH>; /* GPIO 93 */
++		startup-delay-us = <70000>;
++		enable-active-high;
++	};
++
++	/* Speaker amplifier tpa2012 */
++	tpa2012_snd: sound-tpa2012 {
++		pinctrl-names = "default";
++		pinctrl-0 = <&tpa2012_pins>;
++		compatible = "ti,tpa2012";
++		gain-gpios = <&gpio3 16 GPIO_ACTIVE_HIGH>, /* GPIO 80 */
++			     <&gpio3 17 GPIO_ACTIVE_HIGH>; /* GPIO 81 */
++		shutdown-gpios = <&gpio3 28 GPIO_ACTIVE_LOW>; /* GPIO 92 */
++	};
++};
++
++&omap3_pmx_core {
++	uart1_pins: pinxmux_uart1_pins {
++		pinctrl-single,pins = <
++			OMAP3_CORE1_IOPAD(0x20dc, PIN_INPUT | MUX_MODE2)		/* dss_data0.uart1_cts */
++			OMAP3_CORE1_IOPAD(0x20de, PIN_OUTPUT | MUX_MODE2)		/* dss_data1.uart1_rts */
++			OMAP3_CORE1_IOPAD(0x20e8, PIN_OUTPUT | MUX_MODE2)		/* dss_data6.uart1_tx */
++			OMAP3_CORE1_IOPAD(0x20ea, PIN_INPUT | MUX_MODE2)		/* dss_data7.uart1_rx */
++		>;
++	};
++
++	uart2_pins: pinmux_uart2_pins {
++		pinctrl-single,pins = <
++			OMAP3_CORE1_IOPAD(0x216c, PIN_INPUT_PULLDOWN | MUX_MODE7)	/* mcbsp3_dx.safe_mode */
++			OMAP3_CORE1_IOPAD(0x216e, PIN_INPUT_PULLDOWN | MUX_MODE7)	/* mcbsp3_dr.safe_mode */
++			OMAP3_CORE1_IOPAD(0x2170, PIN_INPUT_PULLDOWN | MUX_MODE7)	/* mcbsp3_clk.safe_mode */
++			OMAP3_CORE1_IOPAD(0x2172, PIN_INPUT_PULLDOWN | MUX_MODE7)	/* mcbsp3_fsx.safe_mode */
++			OMAP3_CORE1_IOPAD(0x2178, PIN_INPUT_PULLDOWN | MUX_MODE4)	/* uart2_tx.uart2_tx */
++			OMAP3_CORE1_IOPAD(0x217a, PIN_INPUT_PULLDOWN | MUX_MODE4)	/* uart2_rx.uart2_rx */
++		>;
++	};
++
++	i2c3_pins: pinmux_i2c3_pins {
++		pinctrl-single,pins = <
++			OMAP3_CORE1_IOPAD(0x21c2, PIN_INPUT | MUX_MODE0)		/* i2c3_scl.i2c3_scl */
++			OMAP3_CORE1_IOPAD(0x21c4, PIN_INPUT | MUX_MODE0)		/* i2c3_sda.i2c3_sda */
++		>;
++	};
++
++	mcspi1_pins: pinmux_mcspi1_pins {
++		pinctrl-single,pins = <
++			OMAP3_CORE1_IOPAD(0x21c8, PIN_INPUT | MUX_MODE0)		/* mcspi1_clk.mcspi1_clk */
++			OMAP3_CORE1_IOPAD(0x21ca, PIN_INPUT | MUX_MODE0)		/* mcspi1_simo.mcspi1_simo */
++			OMAP3_CORE1_IOPAD(0x21cc, PIN_INPUT | MUX_MODE0)		/* mcspi1_somi.mcspi1_somi */
++			OMAP3_CORE1_IOPAD(0x21ce, PIN_INPUT_PULLUP | MUX_MODE0)		/* mcspi1_cs0.mcspi1_cs0 */
++			OMAP3_CORE1_IOPAD(0x21d0, PIN_INPUT_PULLUP | MUX_MODE0)		/* mcspi1_cs1.mcspi1_cs1 */
++			OMAP3_CORE1_IOPAD(0x21d2, PIN_INPUT_PULLUP | MUX_MODE0)		/* mcspi1_cs2.mcspi1_cs2 */
++		>;
++	};
++
++	mcspi3_pins: pinmux_mcspi3_pins {
++		pinctrl-single,pins = <
++			OMAP3_CORE1_IOPAD(0x2100, PIN_INPUT | MUX_MODE2)		/* dss_data18.mcspi3_clk */
++			OMAP3_CORE1_IOPAD(0x2102, PIN_INPUT | MUX_MODE2)		/* dss_data19.mcspi3_simo */
++			OMAP3_CORE1_IOPAD(0x2104, PIN_INPUT | MUX_MODE2)		/* dss_data20.mcspi3_somi */
++			OMAP3_CORE1_IOPAD(0x2106, PIN_INPUT_PULLDOWN | MUX_MODE2)	/* dss_data21.mcspi3_cs0 */
++		>;
++	};
++
++	gpmc_pins: pinmux_gpmc_pins {
++		pinctrl-single,pins = <
++			OMAP3_CORE1_IOPAD(0x20ae, PIN_OUTPUT | MUX_MODE0)		/* gpmc_ncs0.gpmc_ncs0 */
++			OMAP3_CORE1_IOPAD(0x20b6, PIN_INPUT_PULLUP | MUX_MODE1)		/* gpmc_ncs4.sys_ndmareq1 */
++			OMAP3_CORE1_IOPAD(0x20d2, PIN_INPUT_PULLUP | MUX_MODE0)		/* gpmc_wait3.gpmc_wait3 */
++		>;
++	};
++
++	led_pins: pinmux_led_pins {
++		pinctrl-single,pins = <
++			OMAP3_CORE1_IOPAD(0x2174, PIN_OUTPUT | MUX_MODE4)		/* uart2_cts.gpio_144 */
++		>;
++	};
++
++	fpga_intc_pins: pinmux_fpga_intc_pins {
++		pinctrl-single,pins = <
++			OMAP3_CORE1_IOPAD(0x20ba, PIN_INPUT_PULLUP | MUX_MODE4)		/* gpmc_ncs6.gpio_57 */
++		>;
++	};
++
++
++	fpga_config_pins: pinmux_fpga_config_pins {
++		pinctrl-single,pins = <
++			/* SYS_PROG_N */
++			OMAP3_CORE1_IOPAD(0x20ec, PIN_INPUT | MUX_MODE4)		/* dss_data8.gpio_78 */
++			/* SYS_DONE */
++			OMAP3_CORE1_IOPAD(0x20ee, PIN_INPUT | MUX_MODE4)		/* dss_data9.gpio_79 */
++			/* SYS_SPI_DIR (input only) */
++			OMAP3_CORE1_IOPAD(0x2138, PIN_INPUT | MUX_MODE4)		/* csi2_dx1.gpio_114 */
++		>;
++	};
++
++	tpa2012_pins: pinmux_tpa2012_pins {
++		pinctrl-single,pins = <
++			OMAP3_CORE1_IOPAD(0x20f0, PIN_OUTPUT | MUX_MODE4)		/* dss_data10.gpio_80 */
++			OMAP3_CORE1_IOPAD(0x20f2, PIN_OUTPUT | MUX_MODE4)		/* dss_data11.gpio_81 */
++			OMAP3_CORE1_IOPAD(0x2108, PIN_OUTPUT | MUX_MODE4)		/* dss_data22.gpio_92 */
++		>;
++	};
++
++	mcp2515_pins: pinmux_mcp2515_pins {
++		pinctrl-single,pins = <
++			/* CAN_INT_N */
++			OMAP3_CORE1_IOPAD(0x20fa, PIN_INPUT | MUX_MODE4)		/* dss_data15.gpio_85 */
++			/* CAM_RST_N */
++			OMAP3_CORE1_IOPAD(0x20fe, PIN_OUTPUT | MUX_MODE4)		/* dss_data17.gpio_87 */
++		>;
++	};
++
++	system_pins: pinmux_system_pins {
++		pinctrl-single,pins = <
++			/* SYS_PD_N */
++			OMAP3_CORE1_IOPAD(0x20d4, PIN_INPUT | MUX_MODE4)		/* dss_pclk.gpio_66 */
++			/* SYS_UART_UP */
++			OMAP3_CORE1_IOPAD(0x20d6, PIN_INPUT | MUX_MODE4)		/* dss_hsync.gpio_67 */
++			/* SYS_UART_DN */
++			OMAP3_CORE1_IOPAD(0x20d8, PIN_INPUT | MUX_MODE4)		/* dss_vsync.gpio_68 */
++			/* SYS_INT_N */
++			OMAP3_CORE1_IOPAD(0x219a, PIN_INPUT | MUX_MODE4)		/* uart3_cts_rctx.gpio_163 */
++		>;
++	};
++
++	cam_pins: pinmux_cam_pins {
++		pinctrl-single,pins = <
++			/* SYS_CIF_RST_N */
++			OMAP3_CORE1_IOPAD(0x20ce, PIN_INPUT_PULLUP | MUX_MODE4)		/* gpmc_wait1.gpio_63 */
++			/* SYS_CIF_PD_N */
++			OMAP3_CORE1_IOPAD(0x2114, PIN_OUTPUT | MUX_MODE4)		/* cam_fld.gpio_98 */
++			OMAP3_CORE1_IOPAD(0x212e, PIN_OUTPUT | MUX_MODE0)		/* cam_xclkb.cam_xclkb */
++			OMAP3_CORE1_IOPAD(0x2130, PIN_OUTPUT | MUX_MODE2)		/* cam_wen.cam_shutter */
++			OMAP3_CORE1_IOPAD(0x2132, PIN_OUTPUT | MUX_MODE0)		/* cam_strobe.cam_strobe */
++
++		>;
++	};
++
++	tiwi_wlan_en_pins: pinxmux_tiwi_wlan_enable_pins {
++		pinctrl-single,pins = <
++			OMAP3_CORE1_IOPAD(0x210a, PIN_OUTPUT | MUX_MODE4)		/* dss_data23.gpio_93 */
++		>;
++	};
++
++	tiwi_wlan_pins: pinxmux_tiwi_wlan_pins {
++		pinctrl-single,pins = <
++			/* WLAN_IRQ */
++			OMAP3_CORE1_IOPAD(0x21c6, PIN_INPUT | MUX_MODE4)		/* hdq_sio.gpio_170 */
++		>;
++	};
++
++	tiwi_bt_en_pins: pinxmux_tiwi_bt_enable_pins {
++		pinctrl-single,pins = <
++			OMAP3_CORE1_IOPAD(0x20f4, PIN_OUTPUT | MUX_MODE4)		/* dss_data12.gpio_82 */
++		>;
++	};
++};
++
++&omap3_pmx_core2 {
++	mmc3_pins: pinxmux_mmc3_pins {
++		pinctrl-single,pins = <
++			OMAP3430_CORE2_IOPAD(0x25d8, PIN_INPUT_PULLUP | MUX_MODE2)	/* etk_clk.mmc3_clk */
++			OMAP3430_CORE2_IOPAD(0x25da, PIN_INPUT_PULLUP | MUX_MODE2)	/* etk_ctl.mmc3_cmd */
++			OMAP3430_CORE2_IOPAD(0x25e2, PIN_INPUT_PULLUP | MUX_MODE2)	/* etk_d3.mmc3_dat3 */
++			OMAP3430_CORE2_IOPAD(0x25e4, PIN_INPUT_PULLUP | MUX_MODE2)	/* etk_d4.mmc3_dat0 */
++			OMAP3430_CORE2_IOPAD(0x25e6, PIN_INPUT_PULLUP | MUX_MODE2)	/* etk_d5.mmc3_dat1 */
++			OMAP3430_CORE2_IOPAD(0x25e8, PIN_INPUT_PULLUP | MUX_MODE2)	/* etk_d6.mmc3_dat2 */
++		>;
++	};
++
++
++	fpga_config_pins2: pinmux_fpga_config_pins2 {
++		pinctrl-single,pins = <
++			OMAP3430_CORE2_IOPAD(0x25ee, PIN_INPUT | MUX_MODE4)		/* etk_d9.gpio_23 */
++		>;
++	};
++
++	system_pins2: pinmux_system_pins2 {
++		pinctrl-single,pins = <
++			/* SYS_SPI_INIT_N */
++			OMAP3430_CORE2_IOPAD(0x25dc, PIN_INPUT_PULLUP | MUX_MODE4)	/* etk_d0.gpio_14 */
++		>;
++	};
++};
++
++&uart1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&tiwi_bt_en_pins>;
++};
++
++&i2c3 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c3_pins>;
++	clock-frequency = <400000>;
++
++	/* optional 1K EEPROM with revision information */
++	eeprom@51 {
++		compatible = "atmel,24c01";
++		reg = <0x51>;
++		pagesize = <8>;
++	};
++
++};
++
++&mcspi1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&mcspi1_pins>;
++
++	/* Power-LI */
++	/* CS0 */
++
++
++	/* FPGA configuration memory 64Mbit */
++	/* CS1 */
++	fpga_flash: at25df641@1 {
++		#address-cells = <1>;
++		#size-cells = <1>;
++		compatible = "atmel,at25df641";
++		reg = <1>;
++		spi-max-frequency = <48000000>; /* 48 MHz max McSPI freq; 75 MHz max part freq */
++		m25p,fast-read;
++	};
++
++};
++
++&mcspi3 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&mcspi3_pins>;
++
++	/* CAN Controller MCP251X */
++	/* CS0 */
++	can0: can@0 {
++		pinctrl-names = "default";
++		pinctrl-0 = <&mcp2515_pins>;
++		compatible = "microchip,mcp2515";
++		reg = <0>;
++		spi-max-frequency = <6000000>; /* 6 MHz McSPI freq; 10 MHZ */
++		clocks = <&mcp2515_osc>;
++		reset-gpios = <&gpio3 23 GPIO_ACTIVE_LOW>; /* GPIO 87 */
++		interrupt-parent = <&gpio3>;
++		interrupts = <21 IRQ_TYPE_EDGE_FALLING>; /* GPIO 85: Falling Edge */
++	};
++};
++
++/* disable on board WiFi */
++&mmc2 {
++	status = "disabled";
++};
++
++/* SDIO TiWi R2 */
++&mmc3 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&mmc3_pins>;
++	status = "okay";
++	vmmc-supply = <&tiwi_wlan_en>;
++	bus-width = <4>;
++	cap-power-off-card;
++	non-removable;
++};
++
+diff --git a/arch/arm/mach-omap2/pdata-quirks.c b/arch/arm/mach-omap2/pdata-quirks.c
+index c33e07e..df13526 100644
+--- a/arch/arm/mach-omap2/pdata-quirks.c
++++ b/arch/arm/mach-omap2/pdata-quirks.c
+@@ -8,13 +8,18 @@
+  * published by the Free Software Foundation.
+  */
+ #include <linux/clk.h>
++#include <linux/clkdev.h>
++#include <linux/clk-provider.h>
+ #include <linux/davinci_emac.h>
+ #include <linux/gpio.h>
+ #include <linux/init.h>
+ #include <linux/kernel.h>
+ #include <linux/of_platform.h>
++#include <linux/ti_wilink_st.h>
+ #include <linux/wl12xx.h>
+ 
++#include <media/mt9v032.h>
++
+ #include <linux/platform_data/pinctrl-single.h>
+ 
+ #include "am35xx.h"
+@@ -61,6 +66,7 @@ static void __init __used legacy_init_wl12xx(unsigned ref_clock,
+ 	wl12xx.board_tcxo_clock = tcxo_clock;
+ 	wl12xx.irq = gpio_to_irq(gpio);
+ 
++	pr_info("Set platform date of wl12xx device\n");
+ 	res = wl12xx_set_platform_data(&wl12xx);
+ 	if (res) {
+ 		pr_err("error setting wl12xx data: %d\n", res);
+@@ -94,6 +100,139 @@ static void __init hsmmc2_internal_input_clk(void)
+ 	omap_ctrl_writel(reg, OMAP343X_CONTROL_DEVCONF1);
+ }
+ 
++/* AMiRo - Bluetooth */
++static struct ti_st_plat_data omap3_overo_amiro_tist_pdata = {
++	.nshutdown_gpio = 82,
++	.dev_name = "/dev/ttyO0",
++	.flow_cntrl = 1,
++	.baud_rate = 3000000,
++};
++
++static struct platform_device omap3_overo_amiro_kim_device = {
++	.name		= "kim",
++	.id		= -1,
++	.dev = {
++		.platform_data = &omap3_overo_amiro_tist_pdata,
++	},
++};
++
++static struct platform_device omap3_overo_amiro_btwilink_device = {
++	.name = "btwilink",
++	.id = -1,
++};
++
++static struct platform_device *omap3_overo_amiro_bt_devices[] __initdata = {
++	&omap3_overo_amiro_kim_device,
++	&omap3_overo_amiro_btwilink_device,
++};
++
++static int __init omap3_overo_amiro_bluetooth_init(void)
++{
++	pr_info("Add platform date of bt device\n");
++	platform_add_devices(omap3_overo_amiro_bt_devices,
++			     ARRAY_SIZE(omap3_overo_amiro_bt_devices));
++
++	return 0;
++}
++
++/* AMiRo - Camera */
++#if defined(CONFIG_VIDEO_OMAP3) || defined(CONFIG_VIDEO_OMAP3_MODULE)
++#include <media/omap3isp.h>
++#include "devices.h"
++
++static struct mt9v032_platform_data omap3_overo_amiro_mt9v032_pdata = {
++	.clk_pol	= 0,
++};
++
++static struct i2c_board_info omap3_overo_amiro_mt9v032_i2c_device = {
++	I2C_BOARD_INFO("mt9v032", 0x5c),
++	.platform_data = &omap3_overo_amiro_mt9v032_pdata,
++};
++
++static struct isp_subdev_i2c_board_info omap3_overo_amiro_mt9v032_subdevs[] = {
++	{
++		.board_info = &omap3_overo_amiro_mt9v032_i2c_device,
++		.i2c_adapter_id = 2,
++	},
++	{ NULL, 0, },
++};
++
++static struct isp_v4l2_subdevs_group omap3_overo_amiro_camera_subdevs[] = {
++	{
++		.subdevs = omap3_overo_amiro_mt9v032_subdevs,
++		.interface = ISP_INTERFACE_PARALLEL,
++		.bus = {
++				.parallel = {
++					.data_lane_shift = 0,
++					.clk_pol = 0,
++				}
++		},
++	},
++	{ NULL, 0, },
++};
++
++static struct isp_platform_data omap3_overo_amiro_isp_pdata = {
++	.xclks = {
++		[0] = {
++			.dev_id = "2-005c",
++		},
++	},
++	.subdevs = omap3_overo_amiro_camera_subdevs,
++};
++
++static struct gpio omap3_overo_amiro_cam_gpios[] __initdata = {
++	{98, GPIOF_OUT_INIT_LOW, "cam_pd_n"},
++	{63, GPIOF_OUT_INIT_LOW, "cam_rst_n"},
++};
++
++static int __init omap3_overo_amiro_camera_init(void)
++{
++	int ret;
++
++	ret = gpio_request_array(omap3_overo_amiro_cam_gpios,
++				 ARRAY_SIZE(omap3_overo_amiro_cam_gpios));
++	if (ret) {
++		pr_err("Unable to request camera GPIOs (%d)\n", ret);
++		return ret;
++	}
++
++	ret = clk_add_alias(NULL, "2-005c", "cam_xclka", NULL);
++	if (ret)
++		pr_err("Failed to add cam_xclk alias to mt9v032 :%d\n", ret);
++
++       return omap3_init_camera(&omap3_overo_amiro_isp_pdata);
++}
++#else
++static int __init omap3_overo_amiro_camera_init(void) { }
++#endif
++
++/* AMiRo - CAN */
++static int __init omap3_overo_amiro_can_init(void)
++{
++	struct clk *clk;
++
++	clk = clk_register_fixed_rate(NULL, "mcp2515_osc", NULL, CLK_IS_ROOT,
++				      24000000);
++	clk_register_clkdev(clk, NULL, "spi3.0");
++
++	return 0;
++}
++
++/* AMiRo */
++static void __init omap3_overo_amiro_legacy_init(void)
++{
++	legacy_init_wl12xx(WL12XX_REFCLOCK_38, 0, 170);
++	omap3_overo_amiro_bluetooth_init();
++
++	omap3_overo_amiro_camera_init();
++	omap3_overo_amiro_can_init();
++}
++
++static void __init omap3_overo_summit_legacy_init(void)
++{
++	omap3_overo_amiro_camera_init();
++}
++
+ static int omap3_sbc_t3730_twl_callback(struct device *dev,
+ 					   unsigned gpio,
+ 					   unsigned ngpio)
+@@ -277,6 +416,8 @@ struct of_dev_auxdata omap_auxdata_lookup[] __initdata = {
+  */
+ static struct pdata_init pdata_quirks[] __initdata = {
+ #ifdef CONFIG_ARCH_OMAP3
++	{ "amiro,omap3-overo-amiro", omap3_overo_amiro_legacy_init, },
++	{ "gumstix,omap3-overo-summit", omap3_overo_summit_legacy_init, },
+ 	{ "compulab,omap3-sbc-t3730", omap3_sbc_t3730_legacy_init, },
+ 	{ "nokia,omap3-n900", nokia_n900_legacy_init, },
+ 	{ "nokia,omap3-n9", hsmmc2_internal_input_clk, },
+-- 
+2.0.0
+

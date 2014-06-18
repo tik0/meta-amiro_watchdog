@@ -1,0 +1,33 @@
+From 5a4a1a66ee099966c35fb1e6b7bf04a6d1c532d3 Mon Sep 17 00:00:00 2001
+From: Florian Vaussard <florian.vaussard@epfl.ch>
+Date: Fri, 7 Mar 2014 20:22:18 +0100
+Subject: [PATCH 08/25] ARM: dts: omap3-tobi: Add AT24C01 EEPROM
+
+Add the AT24C01 EEPROM node populated on most Gumstix expansion board.
+
+Signed-off-by: Florian Vaussard <florian.vaussard@epfl.ch>
+---
+ arch/arm/boot/dts/omap3-overo-tobi-common.dtsi | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/arch/arm/boot/dts/omap3-overo-tobi-common.dtsi b/arch/arm/boot/dts/omap3-overo-tobi-common.dtsi
+index e7f2ac7..0312d22 100644
+--- a/arch/arm/boot/dts/omap3-overo-tobi-common.dtsi
++++ b/arch/arm/boot/dts/omap3-overo-tobi-common.dtsi
+@@ -46,6 +46,13 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&i2c3_pins>;
+ 	clock-frequency = <100000>;
++
++	/* optional 1K EEPROM with revision information */
++	eeprom@51 {
++		compatible = "atmel,24c01";
++		reg = <0x51>;
++		pagesize = <8>;
++	};
+ };
+ 
+ &mmc3 {
+-- 
+2.0.0
+

@@ -1,0 +1,73 @@
+From 597b0cc964babd763833c3a48f800331d5c298a6 Mon Sep 17 00:00:00 2001
+From: Florian Vaussard <florian.vaussard@epfl.ch>
+Date: Fri, 7 Mar 2014 20:22:19 +0100
+Subject: [PATCH 09/25] ARM: dts: overo: Push uart3 pinmux down to expansion
+ board
+
+UART3 is used by expansion boards to get a tty console. Thus, the
+pinmux should be defined by expansion boards, instead of being
+imposed by the processor board.
+
+Signed-off-by: Florian Vaussard <florian.vaussard@epfl.ch>
+---
+ arch/arm/boot/dts/omap3-overo-base.dtsi        | 11 -----------
+ arch/arm/boot/dts/omap3-overo-tobi-common.dtsi | 13 +++++++++++++
+ 2 files changed, 13 insertions(+), 11 deletions(-)
+
+diff --git a/arch/arm/boot/dts/omap3-overo-base.dtsi b/arch/arm/boot/dts/omap3-overo-base.dtsi
+index 13d1ad2..d36bf02 100644
+--- a/arch/arm/boot/dts/omap3-overo-base.dtsi
++++ b/arch/arm/boot/dts/omap3-overo-base.dtsi
+@@ -96,13 +96,6 @@
+ 		>;
+ 	};
+ 
+-	uart3_pins: pinmux_uart3_pins {
+-		pinctrl-single,pins = <
+-			OMAP3_CORE1_IOPAD(0x219e, PIN_INPUT | PIN_OFF_WAKEUPENABLE | MUX_MODE0)	/* uart3_rx_irrx.uart3_rx_irrx */
+-			OMAP3_CORE1_IOPAD(0x21a0, PIN_OUTPUT | MUX_MODE0)		/* uart3_tx_irtx.uart3_tx_irtx */
+-		>;
+-	};
+-
+ 	i2c1_pins: pinmux_i2c1_pins {
+ 		pinctrl-single,pins = <
+ 			OMAP3_CORE1_IOPAD(0x21ba, PIN_INPUT | MUX_MODE0)		/* i2c1_scl.i2c1_scl */
+@@ -226,7 +219,3 @@
+ 	pinctrl-0 = <&uart2_pins>;
+ };
+ 
+-&uart3 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&uart3_pins>;
+-};
+diff --git a/arch/arm/boot/dts/omap3-overo-tobi-common.dtsi b/arch/arm/boot/dts/omap3-overo-tobi-common.dtsi
+index 0312d22..384e87d 100644
+--- a/arch/arm/boot/dts/omap3-overo-tobi-common.dtsi
++++ b/arch/arm/boot/dts/omap3-overo-tobi-common.dtsi
+@@ -28,6 +28,13 @@
+ 			OMAP3_CORE1_IOPAD(0x21c4, PIN_INPUT | MUX_MODE0)	/* i2c3_sda.i2c3_sda */
+ 		>;
+ 	};
++
++	uart3_pins: pinmux_uart3_pins {
++		pinctrl-single,pins = <
++			OMAP3_CORE1_IOPAD(0x219e, PIN_INPUT | PIN_OFF_WAKEUPENABLE | MUX_MODE0)	/* uart3_rx_irrx.uart3_rx_irrx */
++			OMAP3_CORE1_IOPAD(0x21a0, PIN_OUTPUT | MUX_MODE0)		/* uart3_tx_irtx.uart3_tx_irtx */
++		>;
++	};
+ };
+ 
+ #include "omap-gpmc-smsc9221.dtsi"
+@@ -58,3 +65,9 @@
+ &mmc3 {
+ 	status = "disabled";
+ };
++
++&uart3 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart3_pins>;
++};
++
+-- 
+2.0.0
+

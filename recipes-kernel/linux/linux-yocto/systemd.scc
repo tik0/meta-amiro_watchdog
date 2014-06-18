@@ -1,0 +1,4 @@
+define KFEATURE_DESCRIPTION "Enable systemd System and Service Manager support"
+
+kconf non-hardware systemd.cfg
+

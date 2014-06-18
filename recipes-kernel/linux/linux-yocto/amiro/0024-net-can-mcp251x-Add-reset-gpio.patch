@@ -1,0 +1,77 @@
+From be19a480c774f263fd11e724b9a19dd3524362ec Mon Sep 17 00:00:00 2001
+From: Stefan Herbrechtsmeier <stefan@herbrechtsmeier.net>
+Date: Tue, 17 Jun 2014 12:15:23 +0200
+Subject: [PATCH 24/25] net: can: mcp251x: Add reset gpio
+
+Signed-off-by: Stefan Herbrechtsmeier <stefan@herbrechtsmeier.net>
+---
+ drivers/net/can/mcp251x.c | 32 +++++++++++++++++++++++++++-----
+ 1 file changed, 27 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/net/can/mcp251x.c b/drivers/net/can/mcp251x.c
+index cdb9808..52e472e 100644
+--- a/drivers/net/can/mcp251x.c
++++ b/drivers/net/can/mcp251x.c
+@@ -64,6 +64,8 @@
+ #include <linux/device.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/freezer.h>
++#include <linux/gpio.h>
++#include <linux/gpio/consumer.h>
+ #include <linux/interrupt.h>
+ #include <linux/io.h>
+ #include <linux/kernel.h>
+@@ -267,6 +269,7 @@ struct mcp251x_priv {
+ 	struct regulator *power;
+ 	struct regulator *transceiver;
+ 	struct clk *clk;
++	struct gpio_desc *reset;
+ };
+ 
+ #define MCP251X_IS(_model) \
+@@ -627,11 +630,18 @@ static int mcp251x_hw_reset(struct spi_device *spi)
+ 	int ret;
+ 	unsigned long timeout;
+ 
+-	priv->spi_tx_buf[0] = INSTRUCTION_RESET;
+-	ret = spi_write(spi, priv->spi_tx_buf, 1);
+-	if (ret) {
+-		dev_err(&spi->dev, "reset failed: ret = %d\n", ret);
+-		return -EIO;
++
++	if (IS_ERR(priv->reset)) {
++		priv->spi_tx_buf[0] = INSTRUCTION_RESET;
++		ret = spi_write(spi, priv->spi_tx_buf, 1);
++		if (ret) {
++			dev_err(&spi->dev, "reset failed: ret = %d\n", ret);
++			return -EIO;
++		}
++	} else {
++		gpiod_set_value_cansleep(priv->reset, 1);
++		mdelay(10);
++		gpiod_set_value_cansleep(priv->reset, 0);
+ 	}
+ 
+ 	/* Wait for reset to finish */
+@@ -1083,6 +1093,18 @@ static int mcp251x_can_probe(struct spi_device *spi)
+ 		goto out_clk;
+ 	}
+ 
++	priv->reset = devm_gpiod_get(&spi->dev, "reset");
++	if (PTR_ERR(priv->reset) == -EPROBE_DEFER) {
++		ret = -EPROBE_DEFER;
++		goto out_clk;
++	}
++
++	if (!IS_ERR(priv->reset)) {
++		ret = gpiod_direction_output(priv->reset, 1);
++		if (ret)
++			goto out_clk;
++	}
++
+ 	ret = mcp251x_power_enable(priv->power, 1);
+ 	if (ret)
+ 		goto out_clk;
+-- 
+2.0.0
+

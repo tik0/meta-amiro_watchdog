@@ -1,0 +1,30 @@
+From 9f8162ddebf7636e60101f0831d071e73ab6df75 Mon Sep 17 00:00:00 2001
+From: Stefan Herbrechtsmeier <stefan@herbrechtsmeier.net>
+Date: Fri, 13 Jun 2014 18:15:56 +0200
+Subject: [PATCH 21/25] ARM: dts: set 'ti,set-rate-parent' for dpll4_m5x2 clock
+
+Set 'ti,set-rate-parent' property for the dpll4_m5x2_ck clock, which
+is used for the ISP functional clock. This fixes the OMAP3 ISP driver's
+clock rate configuration on OMAP34xx, which needs the rate to be
+propagated properly to the divider node (dpll4_m5_ck).
+
+Signed-off-by: Stefan Herbrechtsmeier <stefan@herbrechtsmeier.net>
+---
+ arch/arm/boot/dts/omap3xxx-clocks.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/boot/dts/omap3xxx-clocks.dtsi b/arch/arm/boot/dts/omap3xxx-clocks.dtsi
+index 25adab1..beeff7c 100644
+--- a/arch/arm/boot/dts/omap3xxx-clocks.dtsi
++++ b/arch/arm/boot/dts/omap3xxx-clocks.dtsi
+@@ -465,6 +465,7 @@
+ 		ti,bit-shift = <0x1e>;
+ 		reg = <0x0d00>;
+ 		ti,set-bit-to-disable;
++		ti,set-rate-parent;
+ 	};
+ 
+ 	dpll4_m6_ck: dpll4_m6_ck {
+-- 
+2.0.0
+
