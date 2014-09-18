@@ -5,10 +5,13 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=4725015cb0be7be389cf06deeae3683d"
 
 DEPENDS = "libnl"
 
-SRCREV = "05dc3b63f0a710c83c89755ffdd9e9c5f8aab5c4"
+SRCREV = "1971f622534da197994b3af6b8a73d38c75f768e"
 PV = "0.0+gitr${SRCPV}"
 
-SRC_URI = "git://github.com/TI-OpenLink/ti-utils.git"
+SRC_URI = " \
+    git://github.com/TI-OpenLink/ti-utils.git \
+    file://0001-Dynamically-allocate-the-nvs_path-for-plt_tx_bip.patch \
+"
 
 S = "${WORKDIR}/git"
 

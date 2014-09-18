@@ -1,0 +1,93 @@
+From e879273c121e68997ed53a6887f4f0cc881d35ad Mon Sep 17 00:00:00 2001
+From: Jonathan Creekmore <jonathan.creekmore@synapse-wireless.com>
+Date: Thu, 13 Mar 2014 16:41:40 -0500
+Subject: [PATCH] Dynamically allocate the nvs_path for plt_tx_bip.
+
+In plt_tx_bip, the nvs_path was originally allocated on the stack
+and then passed as a parameter for the calib_valid_handler netlink
+callback. However, the callback will not be processed until the
+plt_tx_bip handler returns to __handle_cmd() and the responses
+all processed by nl_recvmsgs at the end of the function. Other
+functions are called between the handler and the nl_recvmsgs that
+were overwriting the stack on my platform. By migrating the path
+to a dynamically allocated string, the path is not corrupted and
+the calibration process to proceed on my platform.
+---
+ plt.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
+
+diff --git a/plt.c b/plt.c
+index 77f95a0..b4f7de9 100644
+--- a/plt.c
++++ b/plt.c
+@@ -222,6 +222,7 @@ static int calib_valid_handler(struct nl_msg *msg, void *arg)
+ 
+ 	if (!tb[NL80211_ATTR_TESTDATA]) {
+ 		fprintf(stderr, "no data!\n");
++		free(arg);
+ 		return NL_SKIP;
+ 	}
+ 
+@@ -233,6 +234,7 @@ static int calib_valid_handler(struct nl_msg *msg, void *arg)
+ 	if (prms->radio_status) {
+ 		fprintf(stderr, "Fail to calibrate ith radio status (%d)\n",
+ 			(signed short)prms->radio_status);
++		free(arg);
+ 		return 2;
+ 	}
+ #if 0
+@@ -255,6 +257,7 @@ static int calib_valid_handler(struct nl_msg *msg, void *arg)
+ 	printf("Writing calibration data to %s\n", (char*) arg);
+ 	if (prepare_nvs_file(prms, arg)) {
+ 		fprintf(stderr, "Fail to prepare calibrated NVS file\n");
++		free(arg);
+ 		return 2;
+ 	}
+ #if 0
+@@ -262,6 +265,7 @@ static int calib_valid_handler(struct nl_msg *msg, void *arg)
+ 		"reboot the system\n\n",
+ 		NEW_NVS_NAME, CURRENT_NVS_NAME);
+ #endif
++	free(arg);
+ 	return NL_SKIP;
+ }
+ 
+@@ -437,17 +441,22 @@ static int plt_tx_bip(struct nl80211_state *state, struct nl_cb *cb,
+ 	struct nlattr *key;
+ 	struct wl1271_cmd_cal_p2g prms;
+ 	int i;
+-	char nvs_path[PATH_MAX];
++	char *nvs_path = NULL;
+ 
+ 	if (argc < 8) {
+ 		fprintf(stderr, "%s> Missing arguments\n", __func__);
+ 		return 2;
+ 	}
+ 
+-	if (argc > 8)
+-		strncpy(nvs_path, argv[8], strlen(argv[8]));
+-	else
+-		nvs_path[0] = '\0';
++	if (argc > 8) {
++		nvs_path = strdup(argv[8]);
++	} else {
++		nvs_path = strdup("");
++	}
++	if (!nvs_path) {
++		fprintf(stderr, "Could not allocate memory for nvs_path\n");
++		return 1;
++	}
+ 
+ 	memset(&prms, 0, sizeof(struct wl1271_cmd_cal_p2g));
+ 
+@@ -458,6 +467,7 @@ static int plt_tx_bip(struct nl80211_state *state, struct nl_cb *cb,
+ 	key = nla_nest_start(msg, NL80211_ATTR_TESTDATA);
+ 	if (!key) {
+ 		fprintf(stderr, "fail to nla_nest_start()\n");
++		free(nvs_path);
+ 		return 1;
+ 	}
+ 
+-- 
+2.0.1
+
