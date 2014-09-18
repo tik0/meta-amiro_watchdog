@@ -1,7 +1,7 @@
-From b04248c415612072b50fe0ff483dfb02dee82e41 Mon Sep 17 00:00:00 2001
+From 7c24a7e3181ef57895ec2e448e3244b17afca328 Mon Sep 17 00:00:00 2001
 From: Stefan Herbrechtsmeier <stefan@herbrechtsmeier.net>
 Date: Wed, 21 May 2014 15:21:55 +0200
-Subject: [PATCH 2/8] omap3: overo: Call bootm only after successful nand read
+Subject: [PATCH 2/5] omap3: overo: Call bootm only after successful nand read
 
 Signed-off-by: Stefan Herbrechtsmeier <stefan@herbrechtsmeier.net>
 ---
@@ -9,10 +9,10 @@ Signed-off-by: Stefan Herbrechtsmeier <stefan@herbrechtsmeier.net>
  1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/include/configs/omap3_overo.h b/include/configs/omap3_overo.h
-index 489bc67..ba85d6c 100644
+index b17e495..d042eea 100644
 --- a/include/configs/omap3_overo.h
 +++ b/include/configs/omap3_overo.h
-@@ -140,8 +140,9 @@
+@@ -131,8 +131,9 @@
  		"bootz ${loadaddr} - ${fdtaddr}\0" \
  	"nandboot=echo Booting from nand ...; " \
  		"run nandargs; " \
@@ -25,5 +25,5 @@ index 489bc67..ba85d6c 100644
  #define CONFIG_BOOTCOMMAND \
  	"mmc dev ${mmcdev}; if mmc rescan; then " \
 -- 
-2.0.0
+2.1.0
 
