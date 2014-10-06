@@ -4,34 +4,6 @@
 auto lo
 iface lo inet loopback
 
-# Ethernet/RNDIS gadget (g_ether)
-# ... or on host side, usbnet and random hwaddr
-auto usb0
-iface usb0 inet static
-	address 192.168.0.1
-	netmask 255.255.255.0
-	network 192.168.0.0
-	gateway 192.168.0.200
-	pre-up modprobe g_ether
-	post_down rnmod g_ether
-
-# Wireless interfaces
-auto wlan0
-iface wlan0 inet dhcp
-	wpa-conf /etc/wpa_supplicant.conf
-
-auto pan0
-iface pan0 inet static
-	address 192.168.1.1
-	netmask 255.255.255.0
-	network 192.168.1.0
-	gateway 192.168.1.200
-	pre-up brctl addbr pan0
-	up brctl setfd pan0 0
-	up brctl stp pan0 off
-	up echo nameserver 192.168.1.200 > /etc/resolv.conf
-	post-down brctl delbr pan0
-
 auto can0
 iface can0 inet manual
 	pre-up ip link set $IFACE up txqueuelen 1000 type can bitrate 1000000 triple-sampling on
