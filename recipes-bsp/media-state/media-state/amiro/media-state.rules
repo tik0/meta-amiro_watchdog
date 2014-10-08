@@ -1,6 +1,6 @@
 # AMiRo Video device
 SUBSYSTEM=="video4linux", KERNEL=="v4l-subdev*", \
-  ATTR{name}=="mt9V032 3-005c", RUN+="/etc/udev/scripts/media-state.sh"
+  ATTR{name}=="ov5647 2-0036", RUN+="/etc/udev/scripts/media-state.sh"
 
 SUBSYSTEM=="video4linux", KERNEL=="video*", \
-  ATTR{name}=="OMAP3 ISP CCDC output", SYMLINK+="video"
+  ATTR{name}=="OMAP3 ISP resizer output", SYMLINK+="video"
