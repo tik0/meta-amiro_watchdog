@@ -1,0 +1,32 @@
+[Unit]
+Description=TI WiFi utils set NVS MAC address
+Requires=sys-subsystem-bluetooth-devices-hci0.device
+Requires=sys-subsystem-net-devices-wlan0.device
+After=sys-subsystem-bluetooth-devices-hci0.device
+After=sys-subsystem-net-devices-wlan0.device
+
+[Service]
+Environment=NVS=@BASE_LIBDIR@/firmware/ti-connectivity/wl127x-nvs.bin
+Environment=SYS_WIFI_MAC=/sys/class/net/wlan0/address
+Environment=SYS_BT_MAC=/sys/class/bluetooth/hci0/address
+ExecStart=@BASE_BINDIR@/sh -c "\
+    WIFI_MAC=`@BASE_BINDIR@/cat ${SYS_WIFI_MAC}`;\
+    @BASE_BINDIR@/echo \"WiFi MAC:            $${WIFI_MAC}\";\
+    BT_MAC=`/bin/cat ${SYS_BT_MAC}`;\
+    @BASE_BINDIR@/echo \"Bluetooth MAC:       $${BT_MAC}\";\
+    CALC_WIFI_MAC=`@BASE_BINDIR@/cat ${SYS_BT_MAC} |\
+    @BASE_BINDIR@/sed -e 's/://g' -e 's/^/0x/g' |\
+    @BINDIR@/xargs @BINDIR@/printf %0i |\
+    @BINDIR@/xargs @BINDIR@/expr 1 + |\
+    @BINDIR@/xargs @BINDIR@/printf %012x |\
+    @BASE_BINDIR@/sed -e 's/\([[:xdigit:]]\{2\}\)/\1:/g' -e 's/:$//'`;\
+    @BASE_BINDIR@/echo \"Calculated WiFi MAC: $${CALC_WIFI_MAC}\";\
+    if [ \"$${WIFI_MAC}\" != \"$${CALC_WIFI_MAC}\" ] ; then \
+        @BINDIR@/calibrator set nvs_mac ${NVS} $${CALC_WIFI_MAC};\
+        @BASE_SBINDIR@/rmmod wl12xx;\
+        @BASE_SBINDIR@/modprobe wl12xx;\
+    fi\
+"
+
+[Install]
+WantedBy=multi-user.target
