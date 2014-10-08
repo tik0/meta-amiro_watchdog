@@ -1,6 +1,7 @@
+From b38e06a5397642cfcf765b1c5afe8b7babb67f0e Mon Sep 17 00:00:00 2001
 From: Michael Jones <michael.jones@matrix-vision.de>
 Date: Thu, 26 Jul 2012 13:59:56 +0200
-Subject: [PATCH 2/2] [media] omap3isp: support G_FMT
+Subject: [PATCH 30/35] omap3isp: support G_FMT
 
 This allows a V4L2 application which has no knowledge of the media
 controller to open a video device node of the already-configured ISP
@@ -9,14 +10,14 @@ S_FMT had already been done.
 
 Signed-off-by: Michael Jones <michael.jones@matrix-vision.de>
 ---
- drivers/media/video/omap3isp/ispvideo.c |   27 +++++++++++++++++++++++++++
- 1 files changed, 27 insertions(+), 0 deletions(-)
+ drivers/media/platform/omap3isp/ispvideo.c | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
-diff --git a/drivers/media/video/omap3isp/ispvideo.c b/drivers/media/video/omap3isp/ispvideo.c
-index d1d2c14..955211b 100644
+diff --git a/drivers/media/platform/omap3isp/ispvideo.c b/drivers/media/platform/omap3isp/ispvideo.c
+index 8b87e0c..3109872 100644
 --- a/drivers/media/platform/omap3isp/ispvideo.c
 +++ b/drivers/media/platform/omap3isp/ispvideo.c
-@@ -1244,6 +1244,7 @@ static int isp_video_open(struct file *file)
+@@ -1242,6 +1242,7 @@ static int isp_video_open(struct file *file)
  {
  	struct isp_video *video = video_drvdata(file);
  	struct isp_video_fh *handle;
@@ -24,11 +25,11 @@ index d1d2c14..955211b 100644
  	int ret = 0;
  
  	handle = kzalloc(sizeof(*handle), GFP_KERNEL);
-@@ -1273,6 +1274,32 @@ static int isp_video_open(struct file *file)
+@@ -1271,6 +1272,32 @@ static int isp_video_open(struct file *file)
  	handle->format.type = video->type;
  	handle->timeperframe.denominator = 1;
  
-+	src_pad = media_entity_remote_source(&video->pad);
++	src_pad = media_entity_remote_pad(&video->pad);
 +
 +	if (src_pad) { /* it's on an active link */
 +		struct v4l2_subdev_format srcfmt = {
@@ -58,5 +59,5 @@ index d1d2c14..955211b 100644
  	file->private_data = &handle->vfh;
  
 -- 
-1.7.4.1
+2.1.1
 

@@ -1,0 +1,28 @@
+From b7bae88f189f130c75b9b3fe7ab1a0b4b72b4a07 Mon Sep 17 00:00:00 2001
+From: Stefan Herbrechtsmeier <stefan@herbrechtsmeier.net>
+Date: Mon, 21 Jul 2014 12:10:57 +0200
+Subject: [PATCH 32/35] media: omap3isp: Return -EIO in DQBUF if
+ V4L2_BUF_FLAG_ERROR is set
+
+Signed-off-by: Stefan Herbrechtsmeier <stefan@herbrechtsmeier.net>
+---
+ drivers/media/platform/omap3isp/ispqueue.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/media/platform/omap3isp/ispqueue.c b/drivers/media/platform/omap3isp/ispqueue.c
+index 5f0f8fa..52d0413 100644
+--- a/drivers/media/platform/omap3isp/ispqueue.c
++++ b/drivers/media/platform/omap3isp/ispqueue.c
+@@ -947,6 +947,9 @@ int omap3isp_video_queue_dqbuf(struct isp_video_queue *queue,
+ 	buf->state = ISP_BUF_STATE_IDLE;
+ 	vbuf->flags &= ~V4L2_BUF_FLAG_QUEUED;
+ 
++	if (vbuf->flags & V4L2_BUF_FLAG_ERROR)
++		ret = -EIO;
++
+ done:
+ 	mutex_unlock(&queue->lock);
+ 	return ret;
+-- 
+2.1.1
+

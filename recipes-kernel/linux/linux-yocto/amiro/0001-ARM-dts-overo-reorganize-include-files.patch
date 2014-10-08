@@ -1,7 +1,7 @@
-From b2049d936a9c7e14c75a6289f939e4bf0adf7d38 Mon Sep 17 00:00:00 2001
+From 8db58047559603e318ba9935781fbd18d03090be Mon Sep 17 00:00:00 2001
 From: Florian Vaussard <florian.vaussard@epfl.ch>
 Date: Fri, 7 Mar 2014 20:22:11 +0100
-Subject: [PATCH 01/25] ARM: dts: overo: reorganize include files
+Subject: [PATCH 01/35] ARM: dts: overo: reorganize include files
 
 Currently, overo-related include files are organized as follow:
 
@@ -307,5 +307,5 @@ index 5970999..7bbda68 100644
 -	pinctrl-0 = <&uart3_pins>;
 -};
 -- 
-2.0.0
+2.1.1
 

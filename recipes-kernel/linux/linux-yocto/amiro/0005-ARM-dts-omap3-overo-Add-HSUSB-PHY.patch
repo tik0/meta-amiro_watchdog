@@ -1,7 +1,7 @@
-From ff0ca9ef3fafca856d57adb1138b72308f964152 Mon Sep 17 00:00:00 2001
+From e2ccc260aa229882c650fb6269a9c104150a7437 Mon Sep 17 00:00:00 2001
 From: Florian Vaussard <florian.vaussard@epfl.ch>
 Date: Fri, 7 Mar 2014 20:22:15 +0100
-Subject: [PATCH 05/25] ARM: dts: omap3-overo: Add HSUSB PHY
+Subject: [PATCH 05/35] ARM: dts: omap3-overo: Add HSUSB PHY
 
 Add the High-Speed USB PHY.
 
@@ -143,5 +143,5 @@ index 95c59b2..c37b130 100644
  		pinctrl-single,pins = <
  			OMAP3430_CORE2_IOPAD(0x25e0, PIN_OUTPUT | MUX_MODE4)		/* etk_d2.gpio_16 */
 -- 
-2.0.0
+2.1.1
 

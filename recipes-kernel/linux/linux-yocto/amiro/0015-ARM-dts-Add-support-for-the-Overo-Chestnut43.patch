@@ -1,7 +1,7 @@
-From 2e51931e07ec5fbf4b0e4f334c8b960135be0111 Mon Sep 17 00:00:00 2001
+From aee89412874d4932d74c929626b9c91f6bd9574e Mon Sep 17 00:00:00 2001
 From: Florian Vaussard <florian.vaussard@epfl.ch>
 Date: Tue, 11 Mar 2014 13:20:34 +0100
-Subject: [PATCH 15/25] ARM: dts: Add support for the Overo Chestnut43
+Subject: [PATCH 15/35] ARM: dts: Add support for the Overo Chestnut43
 
 Chestnut43 is an expansion board for Gumstix Overo products.
 
@@ -193,5 +193,5 @@ index 0000000..7d82fdf
 +};
 +
 -- 
-2.0.0
+2.1.1
 

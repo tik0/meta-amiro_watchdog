@@ -1,7 +1,7 @@
-From 570ecf6398dbcf2528a9379034af63aae4b7a507 Mon Sep 17 00:00:00 2001
+From 3fd737ef6390e335f6e2bfc518db225c173117ab Mon Sep 17 00:00:00 2001
 From: Florian Vaussard <florian.vaussard@epfl.ch>
 Date: Tue, 11 Mar 2014 13:20:30 +0100
-Subject: [PATCH 11/25] ARM: dts: overo: Add LIS33DE accelerometer
+Subject: [PATCH 11/35] ARM: dts: overo: Add LIS33DE accelerometer
 
 The LIS33DE accelerometer is used on several Gumstix expansion boards,
 thus add the DT node to omap3-overo-common-peripherals.dtsi.
@@ -90,5 +90,5 @@ index 060eb77..13df50b 100644
 +};
 +
 -- 
-2.0.0
+2.1.1
 

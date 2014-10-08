@@ -1,7 +1,7 @@
-From 5a4a1a66ee099966c35fb1e6b7bf04a6d1c532d3 Mon Sep 17 00:00:00 2001
+From 8d8c90146ffe0983727d40816d0fd20d631e1465 Mon Sep 17 00:00:00 2001
 From: Florian Vaussard <florian.vaussard@epfl.ch>
 Date: Fri, 7 Mar 2014 20:22:18 +0100
-Subject: [PATCH 08/25] ARM: dts: omap3-tobi: Add AT24C01 EEPROM
+Subject: [PATCH 08/35] ARM: dts: omap3-tobi: Add AT24C01 EEPROM
 
 Add the AT24C01 EEPROM node populated on most Gumstix expansion board.
 
@@ -29,5 +29,5 @@ index e7f2ac7..0312d22 100644
  
  &mmc3 {
 -- 
-2.0.0
+2.1.1
 

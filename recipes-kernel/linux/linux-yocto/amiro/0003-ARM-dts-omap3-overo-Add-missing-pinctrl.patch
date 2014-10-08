@@ -1,7 +1,7 @@
-From 5967c3692c4f755eb5038f935a8cf79486b45348 Mon Sep 17 00:00:00 2001
+From 9c3cba580e164c19134f46bdbda5095d8db19941 Mon Sep 17 00:00:00 2001
 From: Florian Vaussard <florian.vaussard@epfl.ch>
 Date: Fri, 7 Mar 2014 20:22:13 +0100
-Subject: [PATCH 03/25] ARM: dts: omap3-overo: Add missing pinctrl
+Subject: [PATCH 03/35] ARM: dts: omap3-overo: Add missing pinctrl
 
 Add missing pinctrl entries for:
 - i2c1
@@ -79,5 +79,5 @@ index 5970999..aea64c0 100644
  	pinctrl-names = "default";
  	pinctrl-0 = <&uart3_pins>;
 -- 
-2.0.0
+2.1.1
 

@@ -1,7 +1,7 @@
-From 219ddac88f23042e966ffb0027d7d3d3d2daa23e Mon Sep 17 00:00:00 2001
+From 3ea8b129ade374e422e669ff08d8b4058adf5141 Mon Sep 17 00:00:00 2001
 From: Florian Vaussard <florian.vaussard@epfl.ch>
 Date: Tue, 11 Mar 2014 13:20:35 +0100
-Subject: [PATCH 16/25] ARM: dts: Add support for the Overo Summit
+Subject: [PATCH 16/35] ARM: dts: Add support for the Overo Summit
 
 Summit is an expansion board for Gumstix Overo products.
 
@@ -139,5 +139,5 @@ index 0000000..6976560
 +};
 +
 -- 
-2.0.0
+2.1.1
 

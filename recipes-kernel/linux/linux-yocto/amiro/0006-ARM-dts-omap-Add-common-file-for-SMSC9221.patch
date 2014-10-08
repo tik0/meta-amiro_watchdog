@@ -1,7 +1,7 @@
-From d209f6e608801ce129b7588718dd188246da6fcb Mon Sep 17 00:00:00 2001
+From 8599bbdce46d3690f0e89e845332f9742e8ba334 Mon Sep 17 00:00:00 2001
 From: Florian Vaussard <florian.vaussard@epfl.ch>
 Date: Fri, 7 Mar 2014 20:22:16 +0100
-Subject: [PATCH 06/25] ARM: dts: omap: Add common file for SMSC9221
+Subject: [PATCH 06/35] ARM: dts: omap: Add common file for SMSC9221
 
 Some devices (SMSC9217, SMSC9218 and SMSC9221 at least) have better
 timings, allowing a higher transfer speed. Create a common file
@@ -83,5 +83,5 @@ index 0000000..73e272f
 +	};
 +};
 -- 
-2.0.0
+2.1.1
 

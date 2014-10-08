@@ -1,7 +1,7 @@
-From 1d7853adda3d364e72e0b2a3d113dd71574d5bb1 Mon Sep 17 00:00:00 2001
+From 649e2f4379dac131ee7378b0ba5e61e41c86dff1 Mon Sep 17 00:00:00 2001
 From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Date: Mon, 21 Apr 2014 12:41:47 +0200
-Subject: [PATCH 20/25] ARM: dts: set 'ti,set-rate-parent' for dpll4_m5 path
+Subject: [PATCH 19/35] ARM: dts: set 'ti,set-rate-parent' for dpll4_m5 path
 
 Set 'ti,set-rate-parent' property for the dpll4_m5x2_mul_ck clock, which
 is used for the ISP functional clock. This fixes the OMAP3 ISP driver's
@@ -27,5 +27,5 @@ index fdce208..25adab1 100644
  
  	dpll4_m5x2_ck: dpll4_m5x2_ck {
 -- 
-2.0.0
+2.1.1
 

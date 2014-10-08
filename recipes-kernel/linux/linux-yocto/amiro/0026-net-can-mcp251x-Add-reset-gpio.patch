@@ -1,7 +1,7 @@
-From be19a480c774f263fd11e724b9a19dd3524362ec Mon Sep 17 00:00:00 2001
+From 86934a6c9a52166d74a248ca3fb0b2e642be9c12 Mon Sep 17 00:00:00 2001
 From: Stefan Herbrechtsmeier <stefan@herbrechtsmeier.net>
 Date: Tue, 17 Jun 2014 12:15:23 +0200
-Subject: [PATCH 24/25] net: can: mcp251x: Add reset gpio
+Subject: [PATCH 26/35] net: can: mcp251x: Add reset gpio
 
 Signed-off-by: Stefan Herbrechtsmeier <stefan@herbrechtsmeier.net>
 ---
@@ -73,5 +73,5 @@ index cdb9808..52e472e 100644
  	if (ret)
  		goto out_clk;
 -- 
-2.0.0
+2.1.1
 

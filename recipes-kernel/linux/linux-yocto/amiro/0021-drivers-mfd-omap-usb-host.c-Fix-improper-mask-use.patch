@@ -1,0 +1,33 @@
+From 550ad5358b99bb22d97e095414a3182f0b4fe93c Mon Sep 17 00:00:00 2001
+From: Michael Welling <mwelling@emacinc.com>
+Date: Mon, 28 Jul 2014 18:01:04 -0500
+Subject: [PATCH 21/35] drivers:mfd:omap-usb-host.c: Fix improper mask use.
+
+single-ulpi-bypass is a flag used for older OMAP3 silicon.
+
+The flag when set, can excite code that improperly uses the
+OMAP_UHH_HOSTCONFIG_UPLI_BYPASS define to clear the corresponding bit.
+Instead it clears all of the other bits disabling all of the ports in
+the process.
+
+Signed-off-by: Michael Welling <mwelling@emacinc.com>
+---
+ drivers/mfd/omap-usb-host.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/mfd/omap-usb-host.c b/drivers/mfd/omap-usb-host.c
+index 90b630c..0aefe50 100644
+--- a/drivers/mfd/omap-usb-host.c
++++ b/drivers/mfd/omap-usb-host.c
+@@ -445,7 +445,7 @@ static unsigned omap_usbhs_rev1_hostconfig(struct usbhs_hcd_omap *omap,
+ 
+ 		for (i = 0; i < omap->nports; i++) {
+ 			if (is_ehci_phy_mode(pdata->port_mode[i])) {
+-				reg &= OMAP_UHH_HOSTCONFIG_ULPI_BYPASS;
++				reg &= ~OMAP_UHH_HOSTCONFIG_ULPI_BYPASS;
+ 				break;
+ 			}
+ 		}
+-- 
+2.1.1
+

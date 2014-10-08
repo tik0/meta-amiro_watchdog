@@ -1,7 +1,7 @@
-From c5ff5be247c788b653710ea0a7518d09b897a167 Mon Sep 17 00:00:00 2001
+From 79a7df2c6055cfff46a995140316f55053c16340 Mon Sep 17 00:00:00 2001
 From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Date: Mon, 21 Apr 2014 12:41:46 +0200
-Subject: [PATCH 19/25] ARM: dts: use ti,fixed-factor-clock for
+Subject: [PATCH 18/35] ARM: dts: use ti,fixed-factor-clock for
  dpll4_m5x2_mul_ck
 
 We need to use set-rate-parent for dpll4_m5 clock path, so use the
@@ -50,5 +50,5 @@ index cb04d4b..fdce208 100644
  
  	dpll4_m5x2_ck: dpll4_m5x2_ck {
 -- 
-2.0.0
+2.1.1
 

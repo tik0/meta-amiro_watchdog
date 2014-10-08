@@ -1,7 +1,7 @@
-From c4c54d66d0063632960061040e54525e0c2641c9 Mon Sep 17 00:00:00 2001
+From beb700fe51522ee8c0dde32ed614365eb017056b Mon Sep 17 00:00:00 2001
 From: Stefan Herbrechtsmeier <stefan@herbrechtsmeier.net>
 Date: Fri, 13 Jun 2014 19:25:37 +0200
-Subject: [PATCH 22/25] ARM: dts: omap3-overo: Move LIS33 accelerometer to its
+Subject: [PATCH 24/35] ARM: dts: omap3-overo: Move LIS33 accelerometer to its
  own dtsi file.
 
 Move the LIS33 accelerometer to its own dtsi file as it isn't available
@@ -219,5 +219,5 @@ index 13df50b..060eb77 100644
 -};
 -
 -- 
-2.0.0
+2.1.1
 

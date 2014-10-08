@@ -1,7 +1,7 @@
-From 1c56f261fa52fe7983a0dd7e8c923896e2fe4b40 Mon Sep 17 00:00:00 2001
+From 67e858298b0c328641dfff12029b81ca672a5208 Mon Sep 17 00:00:00 2001
 From: Florian Vaussard <florian.vaussard@epfl.ch>
 Date: Tue, 11 Mar 2014 13:20:31 +0100
-Subject: [PATCH 12/25] ARM: dts: Add support for the Overo Palo43
+Subject: [PATCH 12/35] ARM: dts: Add support for the Overo Palo43
 
 Palo43 is an expansion board for Gumstix Overo products.
 
@@ -177,5 +177,5 @@ index 0000000..b585d8f
 +};
 +
 -- 
-2.0.0
+2.1.1
 

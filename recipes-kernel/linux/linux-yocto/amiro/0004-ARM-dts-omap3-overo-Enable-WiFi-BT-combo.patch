@@ -1,7 +1,7 @@
-From 797f8625b3bcc2b3643722d5d3dd770e0ec78bb7 Mon Sep 17 00:00:00 2001
+From aac18f4ef8eaa86433d3f78a0c3c77cfbedc81b1 Mon Sep 17 00:00:00 2001
 From: Florian Vaussard <florian.vaussard@epfl.ch>
 Date: Fri, 7 Mar 2014 20:22:14 +0100
-Subject: [PATCH 04/25] ARM: dts: omap3-overo: Enable WiFi/BT combo
+Subject: [PATCH 04/35] ARM: dts: omap3-overo: Enable WiFi/BT combo
 
 MMC2 is used by the on-board WiFi module populated on some boards
 (based on Marvell Libertas 8688 SDIO). The Bluetooth is connected
@@ -155,5 +155,5 @@ index 7bbda68..95c59b2 100644
 +};
 +
 -- 
-2.0.0
+2.1.1
 

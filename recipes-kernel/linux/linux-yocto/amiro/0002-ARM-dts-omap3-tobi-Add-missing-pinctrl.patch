@@ -1,7 +1,7 @@
-From 7388d67b0ff80561425e5cba619be18f8d83e471 Mon Sep 17 00:00:00 2001
+From a1fee4fc9aa0087baff4a16989bdd5e856aa113e Mon Sep 17 00:00:00 2001
 From: Florian Vaussard <florian.vaussard@epfl.ch>
 Date: Fri, 7 Mar 2014 20:22:12 +0100
-Subject: [PATCH 02/25] ARM: dts: omap3-tobi: Add missing pinctrl
+Subject: [PATCH 02/35] ARM: dts: omap3-tobi: Add missing pinctrl
 
 Add missing pinctrl entries:
 - i2c3
@@ -41,5 +41,5 @@ index 9b4a6d2..7375cda 100644
  };
  
 -- 
-2.0.0
+2.1.1
 

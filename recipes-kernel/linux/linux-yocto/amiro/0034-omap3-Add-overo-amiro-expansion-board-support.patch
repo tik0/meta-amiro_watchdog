@@ -1,14 +1,17 @@
-From e00c8ce443ba3a1d1e4d8702b13c353851e67ee9 Mon Sep 17 00:00:00 2001
+From 359c2858840eb045f12a1369bd05fdb0b6f9264c Mon Sep 17 00:00:00 2001
 From: Stefan Herbrechtsmeier <stefan@herbrechtsmeier.net>
 Date: Tue, 3 Jun 2014 17:15:20 +0200
-Subject: [PATCH 25/25] omap3: Add overo amiro expansion board support
+Subject: [PATCH 34/35] omap3: Add overo amiro expansion board support
 
 Signed-off-by: Stefan Herbrechtsmeier <stefan@herbrechtsmeier.net>
 ---
  arch/arm/boot/dts/Makefile              |   1 +
- arch/arm/boot/dts/omap3-overo-amiro.dts | 322 ++++++++++++++++++++++++++++++++
- arch/arm/mach-omap2/pdata-quirks.c      | 141 ++++++++++++++
- 3 files changed, 464 insertions(+)
+ arch/arm/boot/dts/omap3-overo-amiro.dts | 350 ++++++++++++++++++++++++++++++++
+ arch/arm/mach-omap2/pdata-quirks.c      | 164 +++++++++++++++
+ drivers/media/i2c/ov9655.c              |   1 +
+ sound/soc/omap/Kconfig                  |   7 +
+ sound/soc/omap/omap-twl4030.c           |  14 ++
+ 6 files changed, 537 insertions(+)
  create mode 100644 arch/arm/boot/dts/omap3-overo-amiro.dts
 
 diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
@@ -25,10 +28,10 @@ index 6565a7d..80d0432 100644
  	omap3-overo-storm-chestnut43.dtb \
 diff --git a/arch/arm/boot/dts/omap3-overo-amiro.dts b/arch/arm/boot/dts/omap3-overo-amiro.dts
 new file mode 100644
-index 0000000..1fd9ddb
+index 0000000..bb73233
 --- /dev/null
 +++ b/arch/arm/boot/dts/omap3-overo-amiro.dts
-@@ -0,0 +1,322 @@
+@@ -0,0 +1,350 @@
 +/*
 + * AMiRo expansion board
 + */
@@ -37,6 +40,7 @@ index 0000000..1fd9ddb
 +
 +#include "omap3-overo.dtsi"
 +#include "omap3-overo-common-peripherals.dtsi"
++#include "dt-bindings/net/rfkill-regulator.h"
 +
 +/ {
 +	model = "TI OMAP3 Gumstix Overo on AMiRo Cognition";
@@ -82,6 +86,25 @@ index 0000000..1fd9ddb
 +		};
 +	};
 +
++	/* Speaker amplifier tpa2012 */
++	tpa2012: sound-tpa2012 {
++		pinctrl-names = "default";
++		pinctrl-0 = <&tpa2012_pins>;
++		compatible = "ti,tpa2012";
++		gain-gpios = <&gpio3 16 GPIO_ACTIVE_HIGH>, /* GPIO 80 */
++			     <&gpio3 17 GPIO_ACTIVE_HIGH>; /* GPIO 81 */
++		shutdown-gpios = <&gpio3 28 GPIO_ACTIVE_LOW>; /* GPIO 92 */
++	};
++
++	sound {
++		compatible = "ti,omap-twl4030";
++		ti,model = "overo";
++
++		ti,mcbsp = <&mcbsp2>;
++		ti,codec = <&twl_audio>;
++		ti,aux = <&tpa2012>;
++	};
++
 +	/* Regulator to trigger the WLAN enable signal of the TiWi module */
 +	tiwi_wlan_en: regulator-tiwi-wlan-enable {
 +		pinctrl-names = "default";
@@ -90,23 +113,36 @@ index 0000000..1fd9ddb
 +		regulator-name = "regulator-tiwi-wlan-enable";
 +		regulator-min-microvolt = <1800000>;
 +		regulator-max-microvolt = <1800000>;
-+		enable-gpio = <&gpio3 29 GPIO_ACTIVE_HIGH>; /* GPIO 93 */
-+		startup-delay-us = <70000>;
++		gpio = <&gpio3 29 GPIO_ACTIVE_HIGH>; /* GPIO 93 */
++		startup-delay-us = <1000000>;
 +		enable-active-high;
 +	};
 +
-+	/* Speaker amplifier tpa2012 */
-+	tpa2012_snd: sound-tpa2012 {
++	/* Regulator to trigger the Bluetooth enable signal of the TiWi module */
++	tiwi_bt_en: regulator-tiwi-bt-enable {
 +		pinctrl-names = "default";
-+		pinctrl-0 = <&tpa2012_pins>;
-+		compatible = "ti,tpa2012";
-+		gain-gpios = <&gpio3 16 GPIO_ACTIVE_HIGH>, /* GPIO 80 */
-+			     <&gpio3 17 GPIO_ACTIVE_HIGH>; /* GPIO 81 */
-+		shutdown-gpios = <&gpio3 28 GPIO_ACTIVE_LOW>; /* GPIO 92 */
++		pinctrl-0 = <&tiwi_bt_en_pins>;
++		compatible = "regulator-fixed";
++		regulator-name = "regulator-tiwi-bt-enable";
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <1800000>;
++		gpio = <&gpio3 18 GPIO_ACTIVE_HIGH>; /* GPIO 82 */
++		startup-delay-us = <1000000>;
++		enable-active-high;
++	};
++
++	rfkill-bt {
++		compatible = "rfkill-regulator";
++		label = "bluetooth";
++		type = <RFKILL_TYPE_BLUETOOTH>;
++		vrfkill-supply = <&tiwi_bt_en>;
 +	};
 +};
 +
 +&omap3_pmx_core {
++	pinctrl-names = "default";
++	pinctrl-0 = <&hsusb2_pins &cam_pins>;
++
 +	uart1_pins: pinxmux_uart1_pins {
 +		pinctrl-single,pins = <
 +			OMAP3_CORE1_IOPAD(0x20dc, PIN_INPUT | MUX_MODE2)		/* dss_data0.uart1_cts */
@@ -127,12 +163,6 @@ index 0000000..1fd9ddb
 +		>;
 +	};
 +
-+	i2c3_pins: pinmux_i2c3_pins {
-+		pinctrl-single,pins = <
-+			OMAP3_CORE1_IOPAD(0x21c2, PIN_INPUT | MUX_MODE0)		/* i2c3_scl.i2c3_scl */
-+			OMAP3_CORE1_IOPAD(0x21c4, PIN_INPUT | MUX_MODE0)		/* i2c3_sda.i2c3_sda */
-+		>;
-+	};
 +
 +	mcspi1_pins: pinmux_mcspi1_pins {
 +		pinctrl-single,pins = <
@@ -198,7 +228,7 @@ index 0000000..1fd9ddb
 +		pinctrl-single,pins = <
 +			/* CAN_INT_N */
 +			OMAP3_CORE1_IOPAD(0x20fa, PIN_INPUT | MUX_MODE4)		/* dss_data15.gpio_85 */
-+			/* CAM_RST_N */
++			/* CAN_RST_N */
 +			OMAP3_CORE1_IOPAD(0x20fe, PIN_OUTPUT | MUX_MODE4)		/* dss_data17.gpio_87 */
 +		>;
 +	};
@@ -219,13 +249,28 @@ index 0000000..1fd9ddb
 +	cam_pins: pinmux_cam_pins {
 +		pinctrl-single,pins = <
 +			/* SYS_CIF_RST_N */
-+			OMAP3_CORE1_IOPAD(0x20ce, PIN_INPUT_PULLUP | MUX_MODE4)		/* gpmc_wait1.gpio_63 */
++			OMAP3_CORE1_IOPAD(0x20ce, PIN_OUTPUT| MUX_MODE4)		/* gpmc_wait1.gpio_63 */
++			OMAP3_CORE1_IOPAD(0x210c, PIN_INPUT_PULLUP | MUX_MODE0)		/* cam_hs.cam_hs */
++			OMAP3_CORE1_IOPAD(0x210e, PIN_INPUT_PULLUP | MUX_MODE0)		/* cam_vs.cam_vs */
++			OMAP3_CORE1_IOPAD(0x2110, PIN_OUTPUT | MUX_MODE0)		/* cam_xvlk.cam_xclk */
++			OMAP3_CORE1_IOPAD(0x2112, PIN_INPUT_PULLUP | MUX_MODE0)		/* cam_pclk.cam_pclk */
 +			/* SYS_CIF_PD_N */
 +			OMAP3_CORE1_IOPAD(0x2114, PIN_OUTPUT | MUX_MODE4)		/* cam_fld.gpio_98 */
++			OMAP3_CORE1_IOPAD(0x2116, PIN_INPUT | MUX_MODE0)		/* cam_d0_.cam_d0 */
++			OMAP3_CORE1_IOPAD(0x2118, PIN_INPUT | MUX_MODE0)		/* cam_d1.cam_d1 */
++			OMAP3_CORE1_IOPAD(0x211a, PIN_INPUT | MUX_MODE0)		/* cam_d2.cam_d2 */
++			OMAP3_CORE1_IOPAD(0x211c, PIN_INPUT | MUX_MODE0)		/* cam_d3.cam_d3 */
++			OMAP3_CORE1_IOPAD(0x211e, PIN_INPUT | MUX_MODE0)		/* cam_d4.cam_d4 */
++			OMAP3_CORE1_IOPAD(0x2120, PIN_INPUT | MUX_MODE0)		/* cam_d5.cam_d5 */
++			OMAP3_CORE1_IOPAD(0x2122, PIN_INPUT | MUX_MODE0)		/* cam_d6.cam_d6 */
++			OMAP3_CORE1_IOPAD(0x2124, PIN_INPUT | MUX_MODE0)		/* cam_d7.cam_d7 */
++			OMAP3_CORE1_IOPAD(0x2126, PIN_INPUT | MUX_MODE0)		/* cam_d8.cam_d8 */
++			OMAP3_CORE1_IOPAD(0x2128, PIN_INPUT | MUX_MODE0)		/* cam_d9.cam_d9 */
++			OMAP3_CORE1_IOPAD(0x212a, PIN_INPUT | MUX_MODE0)		/* cam_d10.cam_d10 */
++			OMAP3_CORE1_IOPAD(0x212c, PIN_INPUT | MUX_MODE0)		/* cam_d11.cam_d11 */
 +			OMAP3_CORE1_IOPAD(0x212e, PIN_OUTPUT | MUX_MODE0)		/* cam_xclkb.cam_xclkb */
 +			OMAP3_CORE1_IOPAD(0x2130, PIN_OUTPUT | MUX_MODE2)		/* cam_wen.cam_shutter */
-+			OMAP3_CORE1_IOPAD(0x2132, PIN_OUTPUT | MUX_MODE0)		/* cam_strobe.cam_strobe */
-+
++			OMAP3_CORE1_IOPAD(0x2132, PIN_INPUT_PULLDOWN | MUX_MODE0)	/* cam_strobe.cam_strobe */
 +		>;
 +	};
 +
@@ -252,7 +297,7 @@ index 0000000..1fd9ddb
 +&omap3_pmx_core2 {
 +	mmc3_pins: pinxmux_mmc3_pins {
 +		pinctrl-single,pins = <
-+			OMAP3430_CORE2_IOPAD(0x25d8, PIN_INPUT_PULLUP | MUX_MODE2)	/* etk_clk.mmc3_clk */
++			OMAP3430_CORE2_IOPAD(0x25d8, PIN_INPUT | MUX_MODE2)		/* etk_clk.mmc3_clk */
 +			OMAP3430_CORE2_IOPAD(0x25da, PIN_INPUT_PULLUP | MUX_MODE2)	/* etk_ctl.mmc3_cmd */
 +			OMAP3430_CORE2_IOPAD(0x25e2, PIN_INPUT_PULLUP | MUX_MODE2)	/* etk_d3.mmc3_dat3 */
 +			OMAP3430_CORE2_IOPAD(0x25e4, PIN_INPUT_PULLUP | MUX_MODE2)	/* etk_d4.mmc3_dat0 */
@@ -261,14 +306,13 @@ index 0000000..1fd9ddb
 +		>;
 +	};
 +
-+
-+	fpga_config_pins2: pinmux_fpga_config_pins2 {
++	fpga_config_2_pins: pinmux_fpga_config_2_pins {
 +		pinctrl-single,pins = <
 +			OMAP3430_CORE2_IOPAD(0x25ee, PIN_INPUT | MUX_MODE4)		/* etk_d9.gpio_23 */
 +		>;
 +	};
 +
-+	system_pins2: pinmux_system_pins2 {
++	system_2_pins: pinmux_system_2_pins {
 +		pinctrl-single,pins = <
 +			/* SYS_SPI_INIT_N */
 +			OMAP3430_CORE2_IOPAD(0x25dc, PIN_INPUT_PULLUP | MUX_MODE4)	/* etk_d0.gpio_14 */
@@ -276,23 +320,13 @@ index 0000000..1fd9ddb
 +	};
 +};
 +
-+&uart1 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&tiwi_bt_en_pins>;
++&hsusb2_power {
++	startup-delay-us = <250000>;
 +};
 +
-+&i2c3 {
++&uart1 {
 +	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c3_pins>;
-+	clock-frequency = <400000>;
-+
-+	/* optional 1K EEPROM with revision information */
-+	eeprom@51 {
-+		compatible = "atmel,24c01";
-+		reg = <0x51>;
-+		pagesize = <8>;
-+	};
-+
++	pinctrl-0 = <&uart1_pins>;
 +};
 +
 +&mcspi1 {
@@ -301,7 +335,6 @@ index 0000000..1fd9ddb
 +
 +	/* Power-LI */
 +	/* CS0 */
-+
 +
 +	/* FPGA configuration memory 64Mbit */
 +	/* CS1 */
@@ -337,25 +370,23 @@ index 0000000..1fd9ddb
 +
 +/* disable on board WiFi */
 +&mmc2 {
-+	status = "disabled";
 +};
 +
 +/* SDIO TiWi R2 */
 +&mmc3 {
 +	pinctrl-names = "default";
-+	pinctrl-0 = <&mmc3_pins>;
-+	status = "okay";
++	pinctrl-0 = <&mmc3_pins &tiwi_wlan_pins>;
 +	vmmc-supply = <&tiwi_wlan_en>;
++	non-removable;
 +	bus-width = <4>;
 +	cap-power-off-card;
-+	non-removable;
++	status = "okay";
 +};
-+
 diff --git a/arch/arm/mach-omap2/pdata-quirks.c b/arch/arm/mach-omap2/pdata-quirks.c
-index c33e07e..df13526 100644
+index c33e07e..b9560f4 100644
 --- a/arch/arm/mach-omap2/pdata-quirks.c
 +++ b/arch/arm/mach-omap2/pdata-quirks.c
-@@ -8,13 +8,18 @@
+@@ -8,13 +8,19 @@
   * published by the Free Software Foundation.
   */
  #include <linux/clk.h>
@@ -363,6 +394,7 @@ index c33e07e..df13526 100644
 +#include <linux/clk-provider.h>
  #include <linux/davinci_emac.h>
  #include <linux/gpio.h>
++#include <linux/gpio/driver.h>
  #include <linux/init.h>
  #include <linux/kernel.h>
  #include <linux/of_platform.h>
@@ -374,78 +406,35 @@ index c33e07e..df13526 100644
  #include <linux/platform_data/pinctrl-single.h>
  
  #include "am35xx.h"
-@@ -61,6 +66,7 @@ static void __init __used legacy_init_wl12xx(unsigned ref_clock,
- 	wl12xx.board_tcxo_clock = tcxo_clock;
- 	wl12xx.irq = gpio_to_irq(gpio);
- 
-+	pr_info("Set platform date of wl12xx device\n");
- 	res = wl12xx_set_platform_data(&wl12xx);
- 	if (res) {
- 		pr_err("error setting wl12xx data: %d\n", res);
-@@ -94,6 +100,139 @@ static void __init hsmmc2_internal_input_clk(void)
+@@ -94,6 +100,162 @@ static void __init hsmmc2_internal_input_clk(void)
  	omap_ctrl_writel(reg, OMAP343X_CONTROL_DEVCONF1);
  }
  
-+/* AMiRo - Bluetooth */
-+static struct ti_st_plat_data omap3_overo_amiro_tist_pdata = {
-+	.nshutdown_gpio = 82,
-+	.dev_name = "/dev/ttyO0",
-+	.flow_cntrl = 1,
-+	.baud_rate = 3000000,
-+};
-+
-+static struct platform_device omap3_overo_amiro_kim_device = {
-+	.name		= "kim",
-+	.id		= -1,
-+	.dev = {
-+		.platform_data = &omap3_overo_amiro_tist_pdata,
-+	},
-+};
-+
-+static struct platform_device omap3_overo_amiro_btwilink_device = {
-+	.name = "btwilink",
-+	.id = -1,
-+};
-+
-+static struct platform_device *omap3_overo_amiro_bt_devices[] __initdata = {
-+	&omap3_overo_amiro_kim_device,
-+	&omap3_overo_amiro_btwilink_device,
-+};
-+
-+static int __init omap3_overo_amiro_bluetooth_init(void)
-+{
-+	pr_info("Add platform date of bt device\n");
-+	platform_add_devices(omap3_overo_amiro_bt_devices,
-+			     ARRAY_SIZE(omap3_overo_amiro_bt_devices));
-+
-+	return 0;
-+}
-+
-+/* AMiRo - Camera */
 +#if defined(CONFIG_VIDEO_OMAP3) || defined(CONFIG_VIDEO_OMAP3_MODULE)
 +#include <media/omap3isp.h>
 +#include "devices.h"
 +
-+static struct mt9v032_platform_data omap3_overo_amiro_mt9v032_pdata = {
++/* Overo MT9V032 Camera*/
++static struct mt9v032_platform_data omap3_overo_mt9v032_pdata = {
 +	.clk_pol	= 0,
 +};
 +
-+static struct i2c_board_info omap3_overo_amiro_mt9v032_i2c_device = {
++static struct i2c_board_info omap3_overo_mt9v032_i2c_device = {
 +	I2C_BOARD_INFO("mt9v032", 0x5c),
-+	.platform_data = &omap3_overo_amiro_mt9v032_pdata,
++	.platform_data = &omap3_overo_mt9v032_pdata,
 +};
 +
-+static struct isp_subdev_i2c_board_info omap3_overo_amiro_mt9v032_subdevs[] = {
++static struct isp_subdev_i2c_board_info omap3_overo_mt9v032_subdevs[] = {
 +	{
-+		.board_info = &omap3_overo_amiro_mt9v032_i2c_device,
++		.board_info = &omap3_overo_mt9v032_i2c_device,
 +		.i2c_adapter_id = 2,
 +	},
 +	{ NULL, 0, },
 +};
 +
-+static struct isp_v4l2_subdevs_group omap3_overo_amiro_camera_subdevs[] = {
++static struct isp_v4l2_subdevs_group omap3_overo_camera_mt9v032_subdevs[] = {
 +	{
-+		.subdevs = omap3_overo_amiro_mt9v032_subdevs,
++		.subdevs = omap3_overo_mt9v032_subdevs,
 +		.interface = ISP_INTERFACE_PARALLEL,
 +		.bus = {
 +				.parallel = {
@@ -457,26 +446,27 @@ index c33e07e..df13526 100644
 +	{ NULL, 0, },
 +};
 +
-+static struct isp_platform_data omap3_overo_amiro_isp_pdata = {
++static struct isp_platform_data omap3_overo_isp_mt9v032_pdata = {
 +	.xclks = {
 +		[0] = {
 +			.dev_id = "2-005c",
 +		},
++
 +	},
-+	.subdevs = omap3_overo_amiro_camera_subdevs,
++	.subdevs = omap3_overo_camera_mt9v032_subdevs,
 +};
 +
-+static struct gpio omap3_overo_amiro_cam_gpios[] __initdata = {
-+	{98, GPIOF_OUT_INIT_LOW, "cam_pd_n"},
-+	{63, GPIOF_OUT_INIT_LOW, "cam_rst_n"},
++static struct gpio omap3_overo_mt9c032_gpios[] __initdata = {
++	{98, GPIOF_OUT_INIT_HIGH, "cam_pd_n"},
++	{63, GPIOF_OUT_INIT_HIGH, "cam_rst_n"},
 +};
 +
-+static int __init omap3_overo_amiro_camera_init(void)
++static int __init omap3_overo_camera_mt9v032_init(void)
 +{
 +	int ret;
 +
-+	ret = gpio_request_array(omap3_overo_amiro_cam_gpios,
-+				 ARRAY_SIZE(omap3_overo_amiro_cam_gpios));
++	ret = gpio_request_array(omap3_overo_mt9c032_gpios,
++				 ARRAY_SIZE(omap3_overo_mt9c032_gpios));
 +	if (ret) {
 +		pr_err("Unable to request camera GPIOs (%d)\n", ret);
 +		return ret;
@@ -484,12 +474,72 @@ index c33e07e..df13526 100644
 +
 +	ret = clk_add_alias(NULL, "2-005c", "cam_xclka", NULL);
 +	if (ret)
-+		pr_err("Failed to add cam_xclk alias to mt9v032 :%d\n", ret);
++		pr_err("Failed to add cam_xclk alias:%d\n", ret);
 +
-+       return omap3_init_camera(&omap3_overo_amiro_isp_pdata);
++	return omap3_init_camera(&omap3_overo_isp_mt9v032_pdata);
++}
++
++/* Overo OV9655 Camera*/
++static struct i2c_board_info omap3_overo_ov9655_i2c_device = {
++	I2C_BOARD_INFO("ov9655", 0x30),
++};
++
++static struct isp_subdev_i2c_board_info omap3_overo_ov9655_subdevs[] = {
++	{
++		.board_info = &omap3_overo_ov9655_i2c_device,
++		.i2c_adapter_id = 2,
++	},
++	{ NULL, 0, },
++};
++
++static struct isp_v4l2_subdevs_group omap3_overo_camera_ov9655_subdevs[] = {
++	{
++		.subdevs = omap3_overo_ov9655_subdevs,
++		.interface = ISP_INTERFACE_PARALLEL,
++		.bus = {
++				.parallel = {
++					.data_lane_shift = 1,
++					.clk_pol = 0,
++				}
++		},
++	},
++	{ NULL, 0, },
++};
++
++static struct isp_platform_data omap3_overo_isp_ov9655_pdata = {
++	.xclks = {
++		[0] = {
++			.dev_id = "2-0030",
++		},
++
++	},
++	.subdevs = omap3_overo_camera_ov9655_subdevs,
++};
++
++struct gpiod_lookup_table omap3_overo_ov9655_gpios_table = {
++	.dev_id = "2-0030",
++	.table = {
++		GPIO_LOOKUP("gpio", 63, "reset", GPIO_ACTIVE_LOW),
++		GPIO_LOOKUP("gpio", 98, "powerdown", GPIO_ACTIVE_HIGH),
++		{ },
++	},
++};
++
++static int __init omap3_overo_camera_ov9655_init(void)
++{
++	int ret;
++
++	gpiod_add_lookup_table(&omap3_overo_ov9655_gpios_table);
++
++	ret = clk_add_alias(NULL, "2-0030", "cam_xclka", NULL);
++	if (ret)
++		pr_err("Failed to add cam_xclk alias:%d\n", ret);
++
++	return omap3_init_camera(&omap3_overo_isp_ov9655_pdata);
 +}
 +#else
-+static int __init omap3_overo_amiro_camera_init(void) { }
++static int __init omap3_overo_camera_mt9v032_init(void) { }
++static int __init omap3_overo_camera_ov9655_init(void) { }
 +#endif
 +
 +/* AMiRo - CAN */
@@ -504,33 +554,92 @@ index c33e07e..df13526 100644
 +	return 0;
 +}
 +
-+/* AMiRo */
 +static void __init omap3_overo_amiro_legacy_init(void)
 +{
 +	legacy_init_wl12xx(WL12XX_REFCLOCK_38, 0, 170);
-+	omap3_overo_amiro_bluetooth_init();
-+
-+	omap3_overo_amiro_camera_init();
++	omap3_overo_camera_ov9655_init();
 +	omap3_overo_amiro_can_init();
 +}
 +
-+static void __init omap3_overo_summit_legacy_init(void)
++static void __init omap3_overo_legacy_init(void)
 +{
-+	omap3_overo_amiro_camera_init();
++	omap3_overo_camera_mt9v032_init();
 +}
 +
  static int omap3_sbc_t3730_twl_callback(struct device *dev,
  					   unsigned gpio,
  					   unsigned ngpio)
-@@ -277,6 +416,8 @@ struct of_dev_auxdata omap_auxdata_lookup[] __initdata = {
+@@ -277,6 +439,8 @@ struct of_dev_auxdata omap_auxdata_lookup[] __initdata = {
   */
  static struct pdata_init pdata_quirks[] __initdata = {
  #ifdef CONFIG_ARCH_OMAP3
 +	{ "amiro,omap3-overo-amiro", omap3_overo_amiro_legacy_init, },
-+	{ "gumstix,omap3-overo-summit", omap3_overo_summit_legacy_init, },
++	{ "gumstix,omap3-overo", omap3_overo_legacy_init, },
  	{ "compulab,omap3-sbc-t3730", omap3_sbc_t3730_legacy_init, },
  	{ "nokia,omap3-n900", nokia_n900_legacy_init, },
  	{ "nokia,omap3-n9", hsmmc2_internal_input_clk, },
+diff --git a/drivers/media/i2c/ov9655.c b/drivers/media/i2c/ov9655.c
+index d526c59..9e2e8a8 100644
+--- a/drivers/media/i2c/ov9655.c
++++ b/drivers/media/i2c/ov9655.c
+@@ -891,6 +891,7 @@ static int ov9655_set_window(struct v4l2_subdev *sd, struct v4l2_rect *rect,
+ 		    ((ov9655->clkrc + 1) * (1 << clkindx));
+ 	v4l2_ctrl_s_ctrl_int64(ov9655->pixelrate, pixelrate);
+ 
++
+ 	v4l2_info(sd, "Pixel rate %u\n", pixelrate);
+ 
+ 	/* only for RAW data */
+diff --git a/sound/soc/omap/Kconfig b/sound/soc/omap/Kconfig
+index 22ad9c5..77ddf73 100644
+--- a/sound/soc/omap/Kconfig
++++ b/sound/soc/omap/Kconfig
+@@ -15,6 +15,13 @@ config SND_OMAP_SOC_MCPDM
+ config SND_OMAP_SOC_HDMI
+ 	tristate
+ 
++config SND_OMAP_SOC_AMIRO
++	tristate "SoC Audio support for AMiRo"
++	depends on SND_OMAP_SOC && SND_OMAP_SOC_OMAP_TWL4030
++	select SND_SOC_TPA2012
++	help
++	  Say Y if you want to add support for SoC audio on AMiRo.
++
+ config SND_OMAP_SOC_N810
+ 	tristate "SoC Audio support for Nokia N810"
+ 	depends on SND_OMAP_SOC && MACH_NOKIA_N810 && I2C
+diff --git a/sound/soc/omap/omap-twl4030.c b/sound/soc/omap/omap-twl4030.c
+index 6a8d6b5..5b63518 100644
+--- a/sound/soc/omap/omap-twl4030.c
++++ b/sound/soc/omap/omap-twl4030.c
+@@ -256,6 +256,12 @@ static struct snd_soc_dai_link omap_twl4030_dai_links[] = {
+ 	},
+ };
+ 
++static struct snd_soc_aux_dev omap_twl4030_aux_devs[] = {
++	{
++		.name = "TWL4030 Auxiliary Amplifier",
++	},
++};
++
+ /* Audio machine driver */
+ static struct snd_soc_card omap_twl4030_card = {
+ 	.owner = THIS_MODULE,
+@@ -307,6 +313,14 @@ static int omap_twl4030_probe(struct platform_device *pdev)
+ 			omap_twl4030_dai_links[1].cpu_of_node = dai_node;
+ 		}
+ 
++		dai_node = of_parse_phandle(node, "ti,aux", 0);
++		if (dai_node) {
++			omap_twl4030_aux_devs[0].codec_name = NULL;
++			omap_twl4030_aux_devs[0].codec_of_node = dai_node;
++			card->aux_dev = omap_twl4030_aux_devs;
++			card->num_aux_devs = 1;
++		}
++
+ 		priv->jack_detect = of_get_named_gpio(node,
+ 						      "ti,jack-det-gpio", 0);
+ 
 -- 
-2.0.0
+2.1.1
 

@@ -1,7 +1,7 @@
-From 597b0cc964babd763833c3a48f800331d5c298a6 Mon Sep 17 00:00:00 2001
+From 9d82a413c012298af327bd29cadfad450b84a40a Mon Sep 17 00:00:00 2001
 From: Florian Vaussard <florian.vaussard@epfl.ch>
 Date: Fri, 7 Mar 2014 20:22:19 +0100
-Subject: [PATCH 09/25] ARM: dts: overo: Push uart3 pinmux down to expansion
+Subject: [PATCH 09/35] ARM: dts: overo: Push uart3 pinmux down to expansion
  board
 
 UART3 is used by expansion boards to get a tty console. Thus, the
@@ -69,5 +69,5 @@ index 0312d22..384e87d 100644
 +};
 +
 -- 
-2.0.0
+2.1.1
 

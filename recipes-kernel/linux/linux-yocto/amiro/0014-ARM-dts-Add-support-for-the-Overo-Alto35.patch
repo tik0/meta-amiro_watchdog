@@ -1,7 +1,7 @@
-From 98e341cf24ca3e040e511c7354242ed26bf1712c Mon Sep 17 00:00:00 2001
+From 61e61085deae140e71b281e66c41938c354fbef0 Mon Sep 17 00:00:00 2001
 From: Florian Vaussard <florian.vaussard@epfl.ch>
 Date: Tue, 11 Mar 2014 13:20:33 +0100
-Subject: [PATCH 14/25] ARM: dts: Add support for the Overo Alto35
+Subject: [PATCH 14/35] ARM: dts: Add support for the Overo Alto35
 
 Alto35 is an expansion board for Gumstix Overo products.
 
@@ -168,5 +168,5 @@ index 0000000..e9cae52
 +	compatible = "gumstix,omap3-overo-alto35", "gumstix,omap3-overo", "ti,omap36xx", "ti,omap3";
 +};
 -- 
-2.0.0
+2.1.1
 

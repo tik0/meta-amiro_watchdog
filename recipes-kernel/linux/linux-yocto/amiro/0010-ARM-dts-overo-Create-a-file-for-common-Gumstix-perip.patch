@@ -1,7 +1,7 @@
-From 80f3e6d13ba08b2858266676ef6985c628a705eb Mon Sep 17 00:00:00 2001
+From 85839a8ca41ac440c53d46cfad95f3d6397c2bed Mon Sep 17 00:00:00 2001
 From: Florian Vaussard <florian.vaussard@epfl.ch>
 Date: Tue, 11 Mar 2014 13:20:29 +0100
-Subject: [PATCH 10/25] ARM: dts: overo: Create a file for common Gumstix
+Subject: [PATCH 10/35] ARM: dts: overo: Create a file for common Gumstix
  peripherals
 
 Gumstix expansion boards share a couple of peripherals:
@@ -136,5 +136,5 @@ index 384e87d..060eb77 100644
 -};
 -
 -- 
-2.0.0
+2.1.1
 

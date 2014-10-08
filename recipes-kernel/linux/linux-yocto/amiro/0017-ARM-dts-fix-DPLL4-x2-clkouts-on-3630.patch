@@ -1,7 +1,7 @@
-From d96f66fa2fbed209d890079121a399119663267c Mon Sep 17 00:00:00 2001
+From 5c18890b20c9843fb36b2e0b01dc5aad6363f248 Mon Sep 17 00:00:00 2001
 From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 Date: Thu, 13 Feb 2014 10:58:32 +0200
-Subject: [PATCH 18/25] ARM: dts: fix DPLL4 x2 clkouts on 3630
+Subject: [PATCH 17/35] ARM: dts: fix DPLL4 x2 clkouts on 3630
 
 OMAP3630 DPLL4 is different than on OMAP3430, in that it doesn't have
 the x2 multiplier for its outputs. This is not currently reflected in
@@ -65,5 +65,5 @@ index 7e8dee9..5e1bcd0 100644
  /include/ "omap36xx-am35xx-omap3430es2plus-clocks.dtsi"
 +/include/ "omap36xx-clocks.dtsi"
 -- 
-2.0.0
+2.1.1
 

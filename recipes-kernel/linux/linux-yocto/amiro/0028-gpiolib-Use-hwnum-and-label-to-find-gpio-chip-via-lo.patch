@@ -1,0 +1,72 @@
+From 4c292398a4a26a6a6b46392fc1f042b3205aa313 Mon Sep 17 00:00:00 2001
+From: Stefan Herbrechtsmeier <stefan@herbrechtsmeier.net>
+Date: Thu, 3 Jul 2014 18:10:14 +0200
+Subject: [PATCH 28/35] gpiolib: Use hwnum and label to find gpio chip via
+ lookup
+
+The chip label isn't unique. Therefore use the label and hwnum of the
+gpiod_lookup to find the gpio_chip.
+
+Signed-off-by: Stefan Herbrechtsmeier <stefan@herbrechtsmeier.net>
+---
+ drivers/gpio/gpiolib.c | 27 +++++++++++----------------
+ 1 file changed, 11 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+index 50c4922..e669d68 100644
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -1325,16 +1325,18 @@ struct gpio_chip *gpiochip_find(void *data,
+ }
+ EXPORT_SYMBOL_GPL(gpiochip_find);
+ 
+-static int gpiochip_match_name(struct gpio_chip *chip, void *data)
++static int gpiochip_match_lookup(struct gpio_chip *chip, void *data)
+ {
+-	const char *name = data;
++	const struct gpiod_lookup *p = data;
+ 
+-	return !strcmp(chip->label, name);
++	return (p->chip_hwnum >= chip->base) &&
++	       (p->chip_hwnum < (chip->base + chip->ngpio)) &&
++	       !strcmp(chip->label, p->chip_label);
+ }
+ 
+-static struct gpio_chip *find_chip_by_name(const char *name)
++static struct gpio_chip *find_chip_by_lookup(const struct gpiod_lookup *p)
+ {
+-	return gpiochip_find((void *)name, gpiochip_match_name);
++	return gpiochip_find((void *)p, gpiochip_match_lookup);
+ }
+ 
+ #ifdef CONFIG_PINCTRL
+@@ -2389,22 +2391,15 @@ static struct gpio_desc *gpiod_find(struct device *dev, const char *con_id,
+ 		if (p->con_id && (!con_id || strcmp(p->con_id, con_id)))
+ 			continue;
+ 
+-		chip = find_chip_by_name(p->chip_label);
++		chip = find_chip_by_lookup(p);
+ 
+ 		if (!chip) {
+-			dev_err(dev, "cannot find GPIO chip %s\n",
+-				p->chip_label);
++			dev_err(dev, "cannot find GPIO chip %s with pin %d\n",
++				p->chip_label, p->chip_hwnum);
+ 			return ERR_PTR(-ENODEV);
+ 		}
+ 
+-		if (chip->ngpio <= p->chip_hwnum) {
+-			dev_err(dev,
+-				"requested GPIO %d is out of range [0..%d] for chip %s\n",
+-				idx, chip->ngpio, chip->label);
+-			return ERR_PTR(-EINVAL);
+-		}
+-
+-		desc = gpiochip_offset_to_desc(chip, p->chip_hwnum);
++		desc = gpiochip_offset_to_desc(chip, p->chip_hwnum - chip->base);
+ 		*flags = p->flags;
+ 
+ 		return desc;
+-- 
+2.1.1
+

@@ -1,0 +1,98 @@
+From 2f38b2f7b74ae5153d96b123a1d2203a9e46270d Mon Sep 17 00:00:00 2001
+From: Stefan Herbrechtsmeier <stefan@herbrechtsmeier.net>
+Date: Tue, 15 Jul 2014 18:18:52 +0200
+Subject: [PATCH 35/35] media: i2c: Add ov5647 camera sensor support
+
+Signed-off-by: Stefan Herbrechtsmeier <stefan@herbrechtsmeier.net>
+---
+ arch/arm/mach-omap2/pdata-quirks.c | 64 +++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 63 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/mach-omap2/pdata-quirks.c b/arch/arm/mach-omap2/pdata-quirks.c
+index b9560f4..e814207 100644
+--- a/arch/arm/mach-omap2/pdata-quirks.c
++++ b/arch/arm/mach-omap2/pdata-quirks.c
+@@ -227,9 +227,70 @@ static int __init omap3_overo_camera_ov9655_init(void)
+ 
+ 	return omap3_init_camera(&omap3_overo_isp_ov9655_pdata);
+ }
++
++/* Overo OV5647 Camera*/
++static struct i2c_board_info omap3_overo_ov5647_i2c_device = {
++	I2C_BOARD_INFO("ov5647", 0x36),
++};
++
++static struct isp_subdev_i2c_board_info omap3_overo_ov5647_subdevs[] = {
++	{
++		.board_info = &omap3_overo_ov5647_i2c_device,
++		.i2c_adapter_id = 2,
++	},
++	{ NULL, 0, },
++};
++
++static struct isp_v4l2_subdevs_group omap3_overo_camera_ov5647_subdevs[] = {
++	{
++		.subdevs = omap3_overo_ov5647_subdevs,
++		.interface = ISP_INTERFACE_PARALLEL,
++		.bus = {
++				.parallel = {
++					.data_lane_shift = 0,
++					.clk_pol = 0,
++				}
++		},
++	},
++	{ NULL, 0, },
++};
++
++static struct isp_platform_data omap3_overo_isp_ov5647_pdata = {
++	.xclks = {
++		[1] = {
++			.dev_id = "2-0036",
++		},
++
++	},
++	.subdevs = omap3_overo_camera_ov5647_subdevs,
++};
++
++struct gpiod_lookup_table omap3_overo_ov5647_gpios_table = {
++	.dev_id = "2-0036",
++	.table = {
++		GPIO_LOOKUP("gpio", 63, "reset", GPIO_ACTIVE_LOW),
++		GPIO_LOOKUP("gpio", 98, "powerdown", GPIO_ACTIVE_HIGH),
++		{ },
++	},
++};
++
++static int __init omap3_overo_camera_ov5647_init(void)
++{
++	int ret;
++
++	gpiod_add_lookup_table(&omap3_overo_ov5647_gpios_table);
++
++	ret = clk_add_alias(NULL, "2-0036", "cam_xclkb", NULL);
++	if (ret)
++		pr_err("Failed to add cam_xclk alias:%d\n", ret);
++
++	return omap3_init_camera(&omap3_overo_isp_ov5647_pdata);
++}
++
+ #else
+ static int __init omap3_overo_camera_mt9v032_init(void) { }
+ static int __init omap3_overo_camera_ov9655_init(void) { }
++static int __init omap3_overo_camera_ov5647_init(void) { }
+ #endif
+ 
+ /* AMiRo - CAN */
+@@ -247,7 +308,8 @@ static int __init omap3_overo_amiro_can_init(void)
+ static void __init omap3_overo_amiro_legacy_init(void)
+ {
+ 	legacy_init_wl12xx(WL12XX_REFCLOCK_38, 0, 170);
+-	omap3_overo_camera_ov9655_init();
++//	omap3_overo_camera_ov9655_init();
++	omap3_overo_camera_ov5647_init();
+ 	omap3_overo_amiro_can_init();
+ }
+ 
+-- 
+2.1.1
+

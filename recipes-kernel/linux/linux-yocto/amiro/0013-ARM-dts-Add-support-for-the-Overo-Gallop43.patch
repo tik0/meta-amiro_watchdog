@@ -1,7 +1,7 @@
-From f439e7efc0f08cf2bf71f8d9f73a4a89fd7878ec Mon Sep 17 00:00:00 2001
+From 8c25fb21c6b191ccb2f8524faed59e84a3ae3439 Mon Sep 17 00:00:00 2001
 From: Florian Vaussard <florian.vaussard@epfl.ch>
 Date: Tue, 11 Mar 2014 13:20:32 +0100
-Subject: [PATCH 13/25] ARM: dts: Add support for the Overo Gallop43
+Subject: [PATCH 13/35] ARM: dts: Add support for the Overo Gallop43
 
 Gallop43 is an expansion board for Gumstix Overo products.
 
@@ -181,5 +181,5 @@ index 0000000..a1b57e0
 +};
 +
 -- 
-2.0.0
+2.1.1
 

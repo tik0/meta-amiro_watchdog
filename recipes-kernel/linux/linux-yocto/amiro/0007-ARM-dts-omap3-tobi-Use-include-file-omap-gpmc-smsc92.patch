@@ -1,7 +1,7 @@
-From cf95b03dbda665d91d7e645d15bff81b253d9277 Mon Sep 17 00:00:00 2001
+From 6be52720bfc8b2c5f69f614326785c6f96a54b33 Mon Sep 17 00:00:00 2001
 From: Florian Vaussard <florian.vaussard@epfl.ch>
 Date: Fri, 7 Mar 2014 20:22:17 +0100
-Subject: [PATCH 07/25] ARM: dts: omap3-tobi: Use include file
+Subject: [PATCH 07/35] ARM: dts: omap3-tobi: Use include file
  omap-gpmc-smsc9221
 
 Use the timings provided by omap-gpmc-smsc9221. This does not change
@@ -79,5 +79,5 @@ index 7375cda..e7f2ac7 100644
  };
  
 -- 
-2.0.0
+2.1.1
 
