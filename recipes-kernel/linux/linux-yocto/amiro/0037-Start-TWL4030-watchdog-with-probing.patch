@@ -1,0 +1,33 @@
+From 331f2a1fd4e36e4b308a298aad4fa574a4954252 Mon Sep 17 00:00:00 2001
+From: Timo Korthals <tkorthals@techfak.uni-bielefeld.de>
+Date: Fri, 30 Jan 2015 20:44:54 +0100
+Subject: [PATCH] Start TWL4030 watchdog with probing
+
+---
+ drivers/watchdog/twl4030_wdt.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/watchdog/twl4030_wdt.c b/drivers/watchdog/twl4030_wdt.c
+index 2d4535d..c4545fe 100644
+--- a/drivers/watchdog/twl4030_wdt.c
++++ b/drivers/watchdog/twl4030_wdt.c
+@@ -87,12 +87,15 @@ static int twl4030_wdt_probe(struct platform_device *pdev)
+ 	watchdog_set_nowayout(wdt, nowayout);
+ 	platform_set_drvdata(pdev, wdt);
+ 
+-	twl4030_wdt_stop(wdt);
++        pr_info("TWL4030 Watchdog Timer: initial timeout %d sec\n",
++                wdt->timeout);
+ 
+ 	ret = watchdog_register_device(wdt);
+ 	if (ret)
+ 		return ret;
+ 
++        twl4030_wdt_start(wdt);
++
+ 	return 0;
+ }
+ 
+-- 
+2.2.2
+

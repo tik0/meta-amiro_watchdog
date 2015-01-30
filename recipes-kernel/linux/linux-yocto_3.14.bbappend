@@ -42,6 +42,8 @@ SRC_URI_append_amiro = " \
     file://0033-net-rfkill-regulator-Add-devicetree-support.patch \
     file://0034-omap3-Add-overo-amiro-expansion-board-support.patch \
     file://0035-media-i2c-Add-ov5647-camera-sensor-support.patch \
+    file://0036-Start-OMAP-watchdog-with-probing.patch \
+    file://0037-Start-TWL4030-watchdog-with-probing.patch \
     "
 
 COMPATIBLE_MACHINE_amiro = "amiro"
