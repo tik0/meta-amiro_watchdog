@@ -1,0 +1,43 @@
+From f5555a9c6d9981a40972a98539375ea82c930481 Mon Sep 17 00:00:00 2001
+From: Timo Korthals <tkorthals@techfak.uni-bielefeld.de>
+Date: Sat, 31 Jan 2015 01:06:25 +0100
+Subject: [PATCH] Enable watchdog ping on probe with module parameter
+ pingonprobe
+
+---
+ drivers/watchdog/twl4030_wdt.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/drivers/watchdog/twl4030_wdt.c b/drivers/watchdog/twl4030_wdt.c
+index 2d4535d..bd19d64 100644
+--- a/drivers/watchdog/twl4030_wdt.c
++++ b/drivers/watchdog/twl4030_wdt.c
+@@ -33,6 +33,12 @@ module_param(nowayout, bool, 0);
+ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
+ 	"(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+ 
++#define WATCHDOG_PINGONPROBE 1
++static bool pingonprobe = WATCHDOG_PINGONPROBE;
++module_param(pingonprobe, bool, 0);
++MODULE_PARM_DESC(pingonprobe, "Watchdog is pinged after probed "
++	"(default=" __MODULE_STRING(WATCHDOG_PINGONPROBE) ")");
++
+ static int twl4030_wdt_write(unsigned char val)
+ {
+ 	return twl_i2c_write_u8(TWL_MODULE_PM_RECEIVER, val,
+@@ -93,6 +99,12 @@ static int twl4030_wdt_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		return ret;
+ 
++	pr_info("TWL4030 Watchdog Timer: initial timeout %d sec\n",
++		wdt->timeout);
++
++	if (pingonprobe)
++		twl4030_wdt_start(wdt);
++
+ 	return 0;
+ }
+ 
+-- 
+2.2.2
+
