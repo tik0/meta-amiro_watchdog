@@ -3,13 +3,12 @@ Description=Watchdog sample daemon
 After=getty.target
 
 [Service]
-Environment="Timeout=30"
-ExecStart=/usr/bin/watchdog-sample ${Timeout}
-WatchdogSec=30s
-Restart=on-failure
-StartLimitInterval=4min
-StartLimitBurst=4
-StartLimitAction=reboot-force
+Type=simple
+ExecStart=echo "A" > /dev/watchdog
+
+[Timer]
+OnUnitInactiveSec=15s
+Unit=watchdog-sample.service
 
 [Install]
 WantedBy=multi-user.target
