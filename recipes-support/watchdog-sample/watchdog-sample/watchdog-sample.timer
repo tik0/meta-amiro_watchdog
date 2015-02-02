@@ -1,0 +1,9 @@
+[Unit]
+Description=Watchdog sample timer
+
+[Timer]
+OnUnitInactiveSec=15
+Unit=watchdog-sample.service
+
+[Install]
+WantedBy=timers.target

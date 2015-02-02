@@ -1,8 +1,13 @@
 DESCRIPTION = "Watchdog sample daemon"
+SECTION = "base"
+LICENSE = "MIT"
+LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/watchdog-sample/:"
 
-SRC_URI += "file://watchdog-sample.service"
+SRC_URI += "file://watchdog-sample.service \
+            file://watchdog-sample.timer \
+            "
 
 SYSTEMD_SERVICE_${PN} = "watchdog-sample.service"
 
@@ -20,10 +25,19 @@ do_install() {
   install -d ${D}${sysconfdir}/systemd/system/multi-user.target.wants
   ln -sf ${systemd_unitdir}/system/watchdog-sample.service \
     ${D}${sysconfdir}/systemd/system/multi-user.target.wants/watchdog-sample.service
+
+  # install timer file
+  install -d ${D}${systemd_unitdir}/system
+  install -c -m 0644 ${WORKDIR}/watchdog-sample.timer ${D}${systemd_unitdir}/system
+
+  # enable the timer
+  install -d ${D}${systemd_unitdir}/system/timers.target.wants
+  ln -sf ${systemd_unitdir}/system/watchdog-sample.timer \
+    ${D}${systemd_unitdir}/system/timers.target.wants/watchdog-sample.timer
 }
 
-FILES_${PN} = "${base_libdir}/systemd/system/watchdog-sample.service"
+FILES_${PN} += "${base_libdir}/systemd/system/watchdog-sample.service"
 FILES_${PN} += "${sysconfdir}/systemd/system/multi-user.target.wants/watchdog-sample.service"
+FILES_${PN} += "${base_libdir}/systemd/system/watchdog-sample.timer"
+FILES_${PN} += "${base_libdir}/systemd/system/timers.target.wants/watchdog-sample.timer"
 FILES_${PN} += "${bindir}/watchdog-sample"
-
-

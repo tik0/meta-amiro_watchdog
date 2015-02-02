@@ -1,14 +1,10 @@
 [Unit]
-Description=Watchdog sample daemon
+Description=Watchdog sample
 After=getty.target
 
 [Service]
 Type=simple
-ExecStart=echo "A" > /dev/watchdog
-
-[Timer]
-OnUnitInactiveSec=15s
-Unit=watchdog-sample.service
+ExecStart=/bin/sh -c "/bin/echo A > /dev/watchdog"
 
 [Install]
 WantedBy=multi-user.target
